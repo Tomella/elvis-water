@@ -1,0 +1,8 @@
+<div class="row" ng-repeat="division in divisions">
+   <div class="col-md-12" ng-mouseenter="hilight(division)" ng-mouseleave="lolight(division)">
+      <label>
+         <input type="radio" ng-model="state.division" name="divisionsRadio" value="{{division.name}}">
+         {{division.name}}
+      </label>
+   </div>
+</div>

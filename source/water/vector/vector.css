@@ -1,0 +1,14 @@
+.vector-tooltip {
+   min-width:25em;
+}
+
+ .vector-checkbox {
+   width: 18px;
+   height: 18px;
+   vertical-align: bottom;
+   margin-right: 7px !important;
+}
+
+.vector-add:disabled {
+  color:gray;
+}

@@ -1,0 +1,9 @@
+.regions-label {
+   border: 0;
+}
+
+.regions-label.over {
+   font-weight: bold;
+   color: red;
+   font-size: 120%;
+}

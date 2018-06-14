@@ -1,0 +1,8 @@
+<div class="row" ng-repeat="region in regions">
+   <div class="col-md-12" ng-mouseenter="hilight(region)" ng-mouseleave="lolight(region)">
+      <label>
+         <input type="radio" ng-model="state.region" name="regionsRadio" value="{{region.name}}">
+         {{region.name}}
+      </label>
+   </div>
+</div>

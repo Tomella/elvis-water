@@ -1,0 +1,23 @@
+<div class="panel panel-default" style="margin-bottom:-5px;">
+   <div class="panel-heading">
+		<vector-add group="vect.group"></vector-add>
+      <common-tile data="vect.group"></common-tile>
+		<common-bbox data="vect.group"></common-bbox>
+		<common-cc></common-cc>
+      <strong>{{vect.group.title}}</strong>
+   </div>
+   <div class="panel-body">
+      <div ng-repeat="doc in vect.group.docs">
+         <div ng-class-odd="'odd'" ng-class-even="'even'" style="padding-left:12px" ng-mouseleave="vect.lolight(doc)" ng-mouseenter="vect.hilight(doc)" >
+            <span style="width:100%;display:inline-block;padding-bottom:8px">
+               <input type="checkbox" class="vector-checkbox" ng-model="doc.selected">
+		         <common-metaview url="'https://ecat.ga.gov.au/geonetwork/srv/eng/search#!' + doc.primaryId + '/xml'" container="select" item="doc"></common-metaview>
+		         <a href="https://ecat.ga.gov.au/geonetwork/srv/eng/search#!{{doc.primaryId}}" target="_blank" tooltip-append-to-body="true"
+                           uib-tooltip="{{doc.abstract}}" tooltip-placement="auto bottom" tooltip-class="vector-tooltip">
+                  <strong>{{doc.title}}</strong>
+               </a>
+	         </span>
+         </div>
+      </div>
+   </div>
+</div>

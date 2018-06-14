@@ -12,7 +12,7 @@ cd /home/ec2-user/elvis-water
 git pull
 
 # Is this the first time, if so make destination
-test -d $DEPLOY_DESTINATION || mkdir -p $DEPLOY_DESTINATION
+test -d $DEPLOY_DESTINATION || sudo mkdir -p $DEPLOY_DESTINATION
 
 # Copy static content to Apache
 sudo cp -rf dist/* $DEPLOY_DESTINATION

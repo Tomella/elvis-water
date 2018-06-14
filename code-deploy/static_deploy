@@ -10,6 +10,7 @@ cd /home/ec2-user/elvis-water
 
 # Update code base
 git pull
+bower update
 
 # Is this the first time, if so make destination
 test -d $DEPLOY_DESTINATION || sudo mkdir -p $DEPLOY_DESTINATION
@@ -23,7 +24,7 @@ sudo cp -rf dist/* $DEPLOY_DESTINATION
 # it replace the GA key
 if [ -n "$GOOGLE_KEY" ]
 then
-  sudo rm -rf
+  sudo rm -rf $IMAGERY_WORK_DIR
   mkdir $IMAGERY_WORK_DIR
   cp dist/*.html $IMAGERY_WORK_DIR
   /bin/sed -i -e 's/'"$GA_GOOGLE_CLIENT"'/'"$GOOGLE_KEY"'/g' $IMAGERY_WORK_DIR/*.html

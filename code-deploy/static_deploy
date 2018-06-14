@@ -3,7 +3,7 @@
 # The default google client. Works on both the ga and fsdf domains
 GA_GOOGLE_CLIENT=client=gme-geoscienceaustralia
 DEPLOY_DESTINATION=/var/www/water
-IMAGERY_WORK_DIR=/tmp/water_work
+WATER_WORK_DIR=/tmp/water_work
 
 # Should be home already but make sure.
 cd /home/ec2-user/elvis-water
@@ -24,10 +24,10 @@ sudo cp -rf dist/* $DEPLOY_DESTINATION
 # it replace the GA key
 if [ -n "$GOOGLE_KEY" ]
 then
-  sudo rm -rf $IMAGERY_WORK_DIR
-  mkdir $IMAGERY_WORK_DIR
-  cp dist/*.html $IMAGERY_WORK_DIR
-  /bin/sed -i -e 's/'"$GA_GOOGLE_CLIENT"'/'"$GOOGLE_KEY"'/g' $IMAGERY_WORK_DIR/*.html
+  sudo rm -rf $WATER_WORK_DIR
+  mkdir $WATER_WORK_DIR
+  cp dist/*.html $WATER_WORK_DIR
+  /bin/sed -i -e 's/'"$GA_GOOGLE_CLIENT"'/'"$GOOGLE_KEY"'/g' $WATER_WORK_DIR/*.html
   sudo cp -f $WATER_WORK_DIR/*.html /var/www/water
   sudo rm -rf $WATER_WORK_DIR
 fi

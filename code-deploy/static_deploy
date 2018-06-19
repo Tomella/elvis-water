@@ -10,6 +10,7 @@ cd /home/ec2-user/elvis-water
 
 # Update code base
 git pull
+# Pity there isn't an obvious way to only do this if there are changes. (Maybe check git history?)
 bower update
 
 # Is this the first time, if so make destination
@@ -21,7 +22,8 @@ sudo cp -rf dist/* $DEPLOY_DESTINATION
 
 # Sometimes you want to run it on a domain that does not have GA's Google client ID registered so
 # you can set the system variable GOOGLE_KEY in your .bash_profile and export it so that
-# it replace the GA key
+# it replace the GA key so something like
+# export GOOGLE_KEY=key=some_valid_google_key
 if [ -n "$GOOGLE_KEY" ]
 then
   sudo rm -rf $WATER_WORK_DIR

@@ -7,3 +7,21 @@
    color: red;
    font-size: 120%;
 }
+
+.regions-icon {
+   display: block;
+   background-color: white;
+   border: 1px solid gray;
+   border-radius: 3px;
+   position: absolute;
+   top: 5px;
+   left: 5px;
+   padding: 5px;
+   max-width: 150px;
+   opacity: 0.7;
+}
+
+.leaflet-div-icon {
+   background-color: transparent;
+   border: none;
+}

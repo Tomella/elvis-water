@@ -570,6 +570,210 @@ angular.module('common.accordion', ['ui.bootstrap.collapse']).constant('commonAc
 		}
 	}
 })(angular);
+"use strict";
+
+(function (angular, L) {
+   'use strict';
+
+   angular.module("common.featureinfo", []).directive("commonFeatureInfo", ['$http', '$log', '$q', '$timeout', 'featureInfoService', 'flashService', 'messageService', function ($http, $log, $q, $timeout, featureInfoService, flashService, messageService) {
+      var template = "https://elvis-ga.fmecloud.com/fmedatastreaming/elvis_indexes/GetFeatureInfo_ElevationAvailableData.fmw?" + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG%3A4326&BBOX=${bounds}&WIDTH=${width}&HEIGHT=${height}" +
+      //"LAYERS=public.5dem_ProjectsIndex&" +
+      "&LAYERS=public.QLD_Elevation_Metadata_Index,public.ACT2015-Tile_Index_55,public.5dem_ProjectsIndex,public.NSW_100k_Index_54,public.NSW_100k_Index_55," + "public.NSW_100k_Index_56,public.NSW_100k_Index_Forward_Program,public.QLD_Project_Index_54," + "public.QLD_Project_Index_55,public.QLD_Project_Index_56,public.TAS_Project_Index_55," + "public.GA_Project_Index_47,public.GA_Project_Index_48,public.GA_Project_Index_54," + "public.GA_Project_Index_55,public.GA_Project_Index_56" + "&STYLES=&INFO_FORMAT=application%2Fjson&FEATURE_COUNT=100&X=${x}&Y=${y}";
+      var layers = ["public.5dem_ProjectsIndex", "public.NSW_100k_Index"];
+
+      return {
+         require: "^geoMap",
+         restrict: "AE",
+         link: function link(scope, element, attrs, ctrl) {
+            var flasher = null;
+            var paused = false;
+
+            if (typeof scope.options === "undefined") {
+               scope.options = {};
+            }
+
+            ctrl.getMap().then(function (map) {
+               map.on('popupclose', function (e) {
+                  featureInfoService.removeLastLayer(map);
+               });
+
+               map.on("draw:drawstart", function () {
+                  paused = true;
+                  $timeout(function () {
+                     paused = false;
+                  }, 60000);
+               });
+
+               map.on("draw:drawstop", function () {
+                  paused = false;
+               });
+
+               map.on("click", function (event) {
+                  var layer = null;
+                  var size = map.getSize();
+                  var point = map.latLngToContainerPoint(event.latlng, map.getZoom());
+                  var latlng = event.latlng;
+                  var data = {
+                     x: point.x,
+                     y: point.y,
+                     bounds: map.getBounds().toBBoxString(),
+                     height: size.y,
+                     width: size.x
+                  };
+                  var url = template;
+
+                  if (paused) {
+                     return;
+                  }
+
+                  flashService.remove(flasher);
+                  flasher = flashService.add("Checking available data at this point", 30000, true);
+
+                  angular.forEach(data, function (value, key) {
+                     url = url.replace("${" + key + "}", value);
+                  });
+
+                  $http.get(url).then(function (httpResponse) {
+                     var group = httpResponse.data;
+                     var response = void 0;
+                     var features = [];
+                     var popupText = [];
+
+                     console.log(group);
+
+                     map.closePopup();
+                     featureInfoService.removeLastLayer(map);
+                     flashService.remove(flasher);
+
+                     if (!group.length) {
+                        flasher = flashService.add("No status information available for this point.", 4000);
+                        response = httpResponse;
+                     } else {
+                        response = {
+                           data: {
+                              name: "public.AllIndexes",
+                              type: "FeatureCollection",
+                              crs: {
+                                 type: "name",
+                                 properties: {
+                                    name: "EPSG:4326"
+                                 }
+                              },
+                              features: []
+                           }
+                        };
+
+                        features = response.data.features;
+
+                        group.forEach(function (response) {
+                           response.features.forEach(function (feature) {
+                              features.push(feature);
+
+                              var buffer = ["<span>"];
+                              var properties = feature.properties;
+
+                              if (properties.maptitle) {
+                                 var title = properties.mapnumber ? "Map number: " + properties.mapnumber : "";
+                                 buffer.push("<strong>Map Title:</strong> <span title='" + title + "'>" + properties.maptitle);
+                              }
+
+                              /*
+                                    object_name : "middledarling2014_z55.tif",
+                                    object_url : "https://s3-ap-southeast-2.amazonaws.com/elvis.ga.gov.au/elevation/5m-dem/mdba/QG/middledarling2014_z55.tif",
+                                    object_size : "5577755073",
+                                    object_last_modified : "20161017",
+                                    captured: "20161010 - 20161023"
+                                    area : "5560.00",
+                                    status : "Available"
+                              */
+
+                              if (properties.project) {
+                                 buffer.push("<strong>Project name:</strong> " + properties.project);
+                              }
+
+                              if (properties.captured) {
+                                 buffer.push("<br/><strong>Capture date:</strong> " + captured(properties.captured));
+                              }
+
+                              if (properties.object_name) {
+                                 buffer.push("<strong>File name:</strong> " + properties.object_name);
+                              } else if (properties.object_name_ahd) {
+                                 buffer.push("<strong>File name:</strong> " + properties.object_name_ahd);
+                              } else if (properties.object_name_ort) {
+                                 buffer.push("<strong>File name:</strong> " + properties.object_name_ort);
+                              }
+
+                              buffer.push("</span><br/><strong>Status:</strong> " + feature.properties.status);
+
+                              if (properties.available_date) {
+                                 buffer.push("<br/><strong>Available date:</strong> " + formatDate(properties.available_date));
+                              }
+
+                              if (properties.contact) {
+                                 var contact = properties.contact;
+                                 var mailto = contact.toLowerCase().indexOf("mailto:") === 0 ? "" : "mailto:";
+
+                                 buffer.push("<br/><strong>Contact:</strong> <a href='" + mailto + properties.contact + "'>" + properties.contact + "</a>");
+                              }
+
+                              if (properties.metadata_url) {
+                                 buffer.push("<br/><a href='" + properties.metadata_url + "' target='_blank'>Metadata</a>");
+                              }
+
+                              popupText.push(buffer.join(" "));
+                           });
+                        });
+                     }
+
+                     if (features.length) {
+                        layer = L.geoJson(response.data, {
+                           style: function style(feature) {
+                              return {
+                                 fillOpacity: 0.1,
+                                 color: "red"
+                              };
+                           }
+                        }).addTo(map);
+                        featureInfoService.setLayer(layer);
+
+                        L.popup().setLatLng(latlng).setContent("<div class='fi-popup'>" + popupText.join("<hr/>") + "</div>").openOn(map);
+                     }
+                  });
+               });
+            });
+         }
+      };
+   }]).factory('featureInfoService', [function () {
+      var lastFeature = null;
+      return {
+         setLayer: function setLayer(layer) {
+            lastFeature = layer;
+         },
+         removeLastLayer: function removeLastLayer(map) {
+            if (lastFeature) {
+               map.removeLayer(lastFeature);
+               lastFeature = null;
+            }
+         }
+      };
+   }]);
+
+   function captured(twoDates) {
+      var dates = twoDates.split(" - ");
+      if (dates.length !== 2) {
+         return twoDates;
+      }
+
+      return formatDate(dates[0]) + " - " + formatDate(dates[1]);
+   }
+
+   function formatDate(data) {
+      if (data.length !== 8) {
+         return data;
+      }
+      return data.substr(0, 4) + "/" + data.substr(4, 2) + "/" + data.substr(6, 2);
+   }
+})(angular, L);
 'use strict';
 
 (function (angular, $) {
@@ -778,210 +982,6 @@ angular.module('common.accordion', ['ui.bootstrap.collapse']).constant('commonAc
 		return service;
 	}
 })(angular, $);
-"use strict";
-
-(function (angular, L) {
-   'use strict';
-
-   angular.module("common.featureinfo", []).directive("commonFeatureInfo", ['$http', '$log', '$q', '$timeout', 'featureInfoService', 'flashService', 'messageService', function ($http, $log, $q, $timeout, featureInfoService, flashService, messageService) {
-      var template = "https://elvis-ga.fmecloud.com/fmedatastreaming/elvis_indexes/GetFeatureInfo_ElevationAvailableData.fmw?" + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&SRS=EPSG%3A4326&BBOX=${bounds}&WIDTH=${width}&HEIGHT=${height}" +
-      //"LAYERS=public.5dem_ProjectsIndex&" +
-      "&LAYERS=public.QLD_Elevation_Metadata_Index,public.ACT2015-Tile_Index_55,public.5dem_ProjectsIndex,public.NSW_100k_Index_54,public.NSW_100k_Index_55," + "public.NSW_100k_Index_56,public.NSW_100k_Index_Forward_Program,public.QLD_Project_Index_54," + "public.QLD_Project_Index_55,public.QLD_Project_Index_56,public.TAS_Project_Index_55," + "public.GA_Project_Index_47,public.GA_Project_Index_48,public.GA_Project_Index_54," + "public.GA_Project_Index_55,public.GA_Project_Index_56" + "&STYLES=&INFO_FORMAT=application%2Fjson&FEATURE_COUNT=100&X=${x}&Y=${y}";
-      var layers = ["public.5dem_ProjectsIndex", "public.NSW_100k_Index"];
-
-      return {
-         require: "^geoMap",
-         restrict: "AE",
-         link: function link(scope, element, attrs, ctrl) {
-            var flasher = null;
-            var paused = false;
-
-            if (typeof scope.options === "undefined") {
-               scope.options = {};
-            }
-
-            ctrl.getMap().then(function (map) {
-               map.on('popupclose', function (e) {
-                  featureInfoService.removeLastLayer(map);
-               });
-
-               map.on("draw:drawstart", function () {
-                  paused = true;
-                  $timeout(function () {
-                     paused = false;
-                  }, 60000);
-               });
-
-               map.on("draw:drawstop", function () {
-                  paused = false;
-               });
-
-               map.on("click", function (event) {
-                  var layer = null;
-                  var size = map.getSize();
-                  var point = map.latLngToContainerPoint(event.latlng, map.getZoom());
-                  var latlng = event.latlng;
-                  var data = {
-                     x: point.x,
-                     y: point.y,
-                     bounds: map.getBounds().toBBoxString(),
-                     height: size.y,
-                     width: size.x
-                  };
-                  var url = template;
-
-                  if (paused) {
-                     return;
-                  }
-
-                  flashService.remove(flasher);
-                  flasher = flashService.add("Checking available data at this point", 30000, true);
-
-                  angular.forEach(data, function (value, key) {
-                     url = url.replace("${" + key + "}", value);
-                  });
-
-                  $http.get(url).then(function (httpResponse) {
-                     var group = httpResponse.data;
-                     var response = void 0;
-                     var features = [];
-                     var popupText = [];
-
-                     console.log(group);
-
-                     map.closePopup();
-                     featureInfoService.removeLastLayer(map);
-                     flashService.remove(flasher);
-
-                     if (!group.length) {
-                        flasher = flashService.add("No status information available for this point.", 4000);
-                        response = httpResponse;
-                     } else {
-                        response = {
-                           data: {
-                              name: "public.AllIndexes",
-                              type: "FeatureCollection",
-                              crs: {
-                                 type: "name",
-                                 properties: {
-                                    name: "EPSG:4326"
-                                 }
-                              },
-                              features: []
-                           }
-                        };
-
-                        features = response.data.features;
-
-                        group.forEach(function (response) {
-                           response.features.forEach(function (feature) {
-                              features.push(feature);
-
-                              var buffer = ["<span>"];
-                              var properties = feature.properties;
-
-                              if (properties.maptitle) {
-                                 var title = properties.mapnumber ? "Map number: " + properties.mapnumber : "";
-                                 buffer.push("<strong>Map Title:</strong> <span title='" + title + "'>" + properties.maptitle);
-                              }
-
-                              /*
-                                    object_name : "middledarling2014_z55.tif",
-                                    object_url : "https://s3-ap-southeast-2.amazonaws.com/elvis.ga.gov.au/elevation/5m-dem/mdba/QG/middledarling2014_z55.tif",
-                                    object_size : "5577755073",
-                                    object_last_modified : "20161017",
-                                    captured: "20161010 - 20161023"
-                                    area : "5560.00",
-                                    status : "Available"
-                              */
-
-                              if (properties.project) {
-                                 buffer.push("<strong>Project name:</strong> " + properties.project);
-                              }
-
-                              if (properties.captured) {
-                                 buffer.push("<br/><strong>Capture date:</strong> " + captured(properties.captured));
-                              }
-
-                              if (properties.object_name) {
-                                 buffer.push("<strong>File name:</strong> " + properties.object_name);
-                              } else if (properties.object_name_ahd) {
-                                 buffer.push("<strong>File name:</strong> " + properties.object_name_ahd);
-                              } else if (properties.object_name_ort) {
-                                 buffer.push("<strong>File name:</strong> " + properties.object_name_ort);
-                              }
-
-                              buffer.push("</span><br/><strong>Status:</strong> " + feature.properties.status);
-
-                              if (properties.available_date) {
-                                 buffer.push("<br/><strong>Available date:</strong> " + formatDate(properties.available_date));
-                              }
-
-                              if (properties.contact) {
-                                 var contact = properties.contact;
-                                 var mailto = contact.toLowerCase().indexOf("mailto:") === 0 ? "" : "mailto:";
-
-                                 buffer.push("<br/><strong>Contact:</strong> <a href='" + mailto + properties.contact + "'>" + properties.contact + "</a>");
-                              }
-
-                              if (properties.metadata_url) {
-                                 buffer.push("<br/><a href='" + properties.metadata_url + "' target='_blank'>Metadata</a>");
-                              }
-
-                              popupText.push(buffer.join(" "));
-                           });
-                        });
-                     }
-
-                     if (features.length) {
-                        layer = L.geoJson(response.data, {
-                           style: function style(feature) {
-                              return {
-                                 fillOpacity: 0.1,
-                                 color: "red"
-                              };
-                           }
-                        }).addTo(map);
-                        featureInfoService.setLayer(layer);
-
-                        L.popup().setLatLng(latlng).setContent("<div class='fi-popup'>" + popupText.join("<hr/>") + "</div>").openOn(map);
-                     }
-                  });
-               });
-            });
-         }
-      };
-   }]).factory('featureInfoService', [function () {
-      var lastFeature = null;
-      return {
-         setLayer: function setLayer(layer) {
-            lastFeature = layer;
-         },
-         removeLastLayer: function removeLastLayer(map) {
-            if (lastFeature) {
-               map.removeLayer(lastFeature);
-               lastFeature = null;
-            }
-         }
-      };
-   }]);
-
-   function captured(twoDates) {
-      var dates = twoDates.split(" - ");
-      if (dates.length !== 2) {
-         return twoDates;
-      }
-
-      return formatDate(dates[0]) + " - " + formatDate(dates[1]);
-   }
-
-   function formatDate(data) {
-      if (data.length !== 8) {
-         return data;
-      }
-      return data.substr(0, 4) + "/" + data.substr(4, 2) + "/" + data.substr(6, 2);
-   }
-})(angular, L);
 "use strict";
 
 (function (angular, L) {
@@ -1480,25 +1480,6 @@ angular.module('common.accordion', ['ui.bootstrap.collapse']).constant('commonAc
 'use strict';
 
 (function (angular) {
-
-   'use strict';
-
-   angular.module('common.legend', []).directive('commonLegend', [function () {
-      return {
-         template: "<img ng-href='url' ng-if='url'></img>",
-         scope: {
-            map: "="
-         },
-         restrict: "AE",
-         link: function link(scope) {
-            if (scope.map) {}
-         }
-      };
-   }]);
-})(angular);
-'use strict';
-
-(function (angular) {
    'use strict';
 
    angular.module('common.iso19115', ['common.recursionhelper']).directive('iso19115Metadata', [function () {
@@ -1589,6 +1570,25 @@ angular.module('common.accordion', ['ui.bootstrap.collapse']).constant('commonAc
          return f.toUpperCase();
       }).replace(/([A-Z])/g, ' $1').trim();
    }
+})(angular);
+'use strict';
+
+(function (angular) {
+
+   'use strict';
+
+   angular.module('common.legend', []).directive('commonLegend', [function () {
+      return {
+         template: "<img ng-href='url' ng-if='url'></img>",
+         scope: {
+            map: "="
+         },
+         restrict: "AE",
+         link: function link(scope) {
+            if (scope.map) {}
+         }
+      };
+   }]);
 })(angular);
 'use strict';
 
@@ -2050,22 +2050,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(angular);
 'use strict';
 
-{
-   angular.module('common.reset', []).directive('resetPage', function ($window) {
-      return {
-         restrict: 'AE',
-         scope: {},
-         templateUrl: 'common/reset/reset.html',
-         controller: ['$scope', function ($scope) {
-            $scope.reset = function () {
-               $window.location.reload();
-            };
-         }]
-      };
-   });
-}
-'use strict';
-
 (function (angular) {
   'use strict';
 
@@ -2114,6 +2098,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     };
   }]);
 })(angular);
+'use strict';
+
+{
+   angular.module('common.reset', []).directive('resetPage', function ($window) {
+      return {
+         restrict: 'AE',
+         scope: {},
+         templateUrl: 'common/reset/reset.html',
+         controller: ['$scope', function ($scope) {
+            $scope.reset = function () {
+               $window.location.reload();
+            };
+         }]
+      };
+   });
+}
 "use strict";
 
 {
@@ -2618,159 +2618,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		};
 	}]);
 })(angular);
-"use strict";
-
-(function (angular) {
-
-   'use strict';
-
-   angular.module("common.tile", []).directive("commonTile", ['$rootScope', 'tileService', function ($rootScope, tileService) {
-      return {
-         scope: {
-            data: "="
-         },
-         template: '<button type="button" class="undecorated" ng-if="data.tileCache" ng-click="toggle(item)" title="Show/hide Tile layer." tooltip-placement="right" tooltip="View on mapS.">' + '<i ng-class="{active:data.isTilesShowing}" class="fa fa-lg fa-globe"></i></button>',
-         link: function link(scope) {
-            scope.$watch("data", function (newData, oldData) {
-               if (newData) {
-                  tileService.subscribe(newData);
-               } else if (oldData) {
-                  // In a fixed tag this gets called.
-                  tileService.unsubscribe(oldData);
-               }
-            });
-
-            scope.toggle = function () {
-               if (scope.data.isTilesShowing) {
-                  tileService.hide(scope.data);
-               } else {
-                  tileService.show(scope.data);
-               }
-            };
-
-            // Any water layer really.
-            $rootScope.$on('hide.wms', function (event, id) {
-               if (scope.data && id === scope.data.primaryId && scope.data.isTilesShowing) {
-                  scope.toggle();
-               }
-            });
-
-            // In an ng-repeat this gets called
-            scope.$on("$destroy", function () {
-               tileService.unsubscribe(scope.data);
-            });
-         }
-      };
-   }]).factory("tileService", ['$http', '$log', '$q', '$timeout', 'selectService', 'mapService', function ($http, $log, $q, $timeout, selectService, mapService) {
-      var subscribers = {};
-
-      return {
-         createLayer: function createLayer(service) {
-            return new TileClient(service);
-         },
-
-         subscribe: function subscribe(data) {
-            var id = data.primaryId,
-                subscription = subscribers[id];
-
-            if (!data || !data.tileCache) {
-               return;
-            }
-
-            if (subscription) {
-               subscription.count += 1;
-            } else {
-               subscription = subscribers[id] = {
-                  count: 1,
-                  layer: this.createLayer(data)
-               };
-            }
-
-            if (subscription.count === 1 && data.isTilesShowing) {
-               this._showLayer(subscription.layer);
-            }
-         },
-
-         unsubscribe: function unsubscribe(data) {
-            var id = data.primaryId,
-                subscription = subscribers[id];
-
-            if (subscription) {
-               subscription.count--;
-
-               if (!subscription.count) {
-                  // We want to clean up here. We don't say we aren't showing,
-                  if (data.isTilesShowing) {
-                     this._hideLayer(subscription.layer);
-                  }
-               }
-            }
-         },
-
-         _showLayer: function _showLayer(layer) {
-            if (layer) {
-               layer.showTile();
-            }
-         },
-
-         _hideLayer: function _hideLayer(layer) {
-            if (layer) {
-               layer.clearTile();
-            }
-         },
-
-         show: function show(data) {
-            data.isTilesShowing = true;
-            this._showLayer(subscribers[data.primaryId].layer);
-         },
-
-         hide: function hide(data) {
-            data.isTilesShowing = false;
-            this._hideLayer(subscribers[data.primaryId].layer);
-         }
-      };
-
-      function TileClient(service) {
-         this.service = service;
-         this.tileLayer = null;
-         this.capabilities = null;
-
-         this.toggleTile = function () {
-            if (this.tileLayer) {
-               this.clearTile();
-            } else {
-               this.showTile();
-            }
-         };
-
-         this.showTile = function () {
-            var createLayer = function createLayer() {
-               if (service.tileCacheOptions && service.tileCacheOptions.type === "WMS") {
-                  this.tileLayer = L.tileLayer.wms(service.tileCache, service.tileCacheOptions);
-               } else {
-                  // This is the default tile type
-                  this.tileLayer = L.tileLayer(service.tileCache, service.tileCacheOptions);
-               }
-               this.tileLayer.addTo(selectService.getLayerGroup());
-            };
-
-            if (this.tileLayer) {
-               this.clearTile();
-            }
-
-            return $q.when(createLayer.apply(this));
-         };
-
-         this.clearTile = function () {
-            if (this.tileLayer) {
-               selectService.getLayerGroup().removeLayer(this.tileLayer);
-               this.tileLayer = null;
-            }
-            return null;
-         };
-      }
-   }]);
-})(angular);
 'use strict';
 
 (function (angular) {
@@ -2970,6 +2817,159 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         };
     }]);
+})(angular);
+"use strict";
+
+(function (angular) {
+
+   'use strict';
+
+   angular.module("common.tile", []).directive("commonTile", ['$rootScope', 'tileService', function ($rootScope, tileService) {
+      return {
+         scope: {
+            data: "="
+         },
+         template: '<button type="button" class="undecorated" ng-if="data.tileCache" ng-click="toggle(item)" title="Show/hide Tile layer." tooltip-placement="right" tooltip="View on mapS.">' + '<i ng-class="{active:data.isTilesShowing}" class="fa fa-lg fa-globe"></i></button>',
+         link: function link(scope) {
+            scope.$watch("data", function (newData, oldData) {
+               if (newData) {
+                  tileService.subscribe(newData);
+               } else if (oldData) {
+                  // In a fixed tag this gets called.
+                  tileService.unsubscribe(oldData);
+               }
+            });
+
+            scope.toggle = function () {
+               if (scope.data.isTilesShowing) {
+                  tileService.hide(scope.data);
+               } else {
+                  tileService.show(scope.data);
+               }
+            };
+
+            // Any water layer really.
+            $rootScope.$on('hide.wms', function (event, id) {
+               if (scope.data && id === scope.data.primaryId && scope.data.isTilesShowing) {
+                  scope.toggle();
+               }
+            });
+
+            // In an ng-repeat this gets called
+            scope.$on("$destroy", function () {
+               tileService.unsubscribe(scope.data);
+            });
+         }
+      };
+   }]).factory("tileService", ['$http', '$log', '$q', '$timeout', 'selectService', 'mapService', function ($http, $log, $q, $timeout, selectService, mapService) {
+      var subscribers = {};
+
+      return {
+         createLayer: function createLayer(service) {
+            return new TileClient(service);
+         },
+
+         subscribe: function subscribe(data) {
+            var id = data.primaryId,
+                subscription = subscribers[id];
+
+            if (!data || !data.tileCache) {
+               return;
+            }
+
+            if (subscription) {
+               subscription.count += 1;
+            } else {
+               subscription = subscribers[id] = {
+                  count: 1,
+                  layer: this.createLayer(data)
+               };
+            }
+
+            if (subscription.count === 1 && data.isTilesShowing) {
+               this._showLayer(subscription.layer);
+            }
+         },
+
+         unsubscribe: function unsubscribe(data) {
+            var id = data.primaryId,
+                subscription = subscribers[id];
+
+            if (subscription) {
+               subscription.count--;
+
+               if (!subscription.count) {
+                  // We want to clean up here. We don't say we aren't showing,
+                  if (data.isTilesShowing) {
+                     this._hideLayer(subscription.layer);
+                  }
+               }
+            }
+         },
+
+         _showLayer: function _showLayer(layer) {
+            if (layer) {
+               layer.showTile();
+            }
+         },
+
+         _hideLayer: function _hideLayer(layer) {
+            if (layer) {
+               layer.clearTile();
+            }
+         },
+
+         show: function show(data) {
+            data.isTilesShowing = true;
+            this._showLayer(subscribers[data.primaryId].layer);
+         },
+
+         hide: function hide(data) {
+            data.isTilesShowing = false;
+            this._hideLayer(subscribers[data.primaryId].layer);
+         }
+      };
+
+      function TileClient(service) {
+         this.service = service;
+         this.tileLayer = null;
+         this.capabilities = null;
+
+         this.toggleTile = function () {
+            if (this.tileLayer) {
+               this.clearTile();
+            } else {
+               this.showTile();
+            }
+         };
+
+         this.showTile = function () {
+            var createLayer = function createLayer() {
+               if (service.tileCacheOptions && service.tileCacheOptions.type === "WMS") {
+                  this.tileLayer = L.tileLayer.wms(service.tileCache, service.tileCacheOptions);
+               } else {
+                  // This is the default tile type
+                  this.tileLayer = L.tileLayer(service.tileCache, service.tileCacheOptions);
+               }
+               this.tileLayer.addTo(selectService.getLayerGroup());
+            };
+
+            if (this.tileLayer) {
+               this.clearTile();
+            }
+
+            return $q.when(createLayer.apply(this));
+         };
+
+         this.clearTile = function () {
+            if (this.tileLayer) {
+               selectService.getLayerGroup().removeLayer(this.tileLayer);
+               this.tileLayer = null;
+            }
+            return null;
+         };
+      }
+   }]);
 })(angular);
 "use strict";
 

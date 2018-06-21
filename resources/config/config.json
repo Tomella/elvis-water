@@ -6,7 +6,7 @@
    	  "name" : "main",
       "options":{
       	 "maxBounds" : [[-48, 106],[-6, 154]],
-         "center":[-28, 125],
+         "center":[-28, 135],
          "minZoom":4,
          "zoom":4
       },
@@ -170,7 +170,7 @@
          "#e57982"
       ],
       "divisionOptions": {
-         "Tanami–Timor Sea Coast" : {
+         "Tanami-Timor Sea Coast" : {
             "center": [-20, 133]
          },
          "North East Coast" : {

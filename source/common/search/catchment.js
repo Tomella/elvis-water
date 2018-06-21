@@ -23,6 +23,9 @@ angular.module("common.catchment", ['geo.draw'])
                   catchmentService.zoomToLocation(region);
                   cancel();
                };
+
+
+
                function cancel() {
                   $timeout.cancel(timeout);
                   timeout = $timeout(function () {

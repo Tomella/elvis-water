@@ -177,12 +177,9 @@
                      marker = L.circleMarker(latLng, {radius:2});
                      layerGroup.addLayer(marker);
                      marker = L.marker(latLng,
-                        {icon: L.divIcon({ html: "<div class='regions-icon' title='" + region.name + "'><div class='ellipsis'>" + region.name + "</div></div>" }) });
+                        {icon: L.divIcon({ html: "<div class='regions-icon' title='" +  region.name + "'><div class='ellipsis'>" + region.name + "</div></div>" }) });
                      layerGroup.addLayer(marker);
 
-
-
-                     layer.bindPopup(region.name);
                      regions.push(region);
 
                      layer.on("mouseover", () => {

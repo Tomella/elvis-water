@@ -3,6 +3,7 @@
    angular.module("WaterApp", [
       'common.altthemes',
 		'common.basin',
+		'common.catchment',
       'common.header',
       'common.navigation',
       'common.panes',
@@ -23,6 +24,7 @@
       'explorer.tabs',
       'explorer.version',
       'explorer.map.templates',
+      'exp.search.map.service',
       'exp.ui.templates',
 
 		'geo.draw',

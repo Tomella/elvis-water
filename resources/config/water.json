@@ -6,7 +6,7 @@
    	  "name" : "main",
       "options":{
       	 "maxBounds" : [[-48, 106],[-6, 159]],
-         "center":[-28, 140],
+         "center":[-29, 145],
          "minZoom":4,
          "zoom":4
       },
@@ -299,9 +299,6 @@
          "#e57982"
       ],
       "divisionOptions": {
-         "Tanami–Timor Sea Coast" : {
-            "center": [-20, 133]
-         },
          "North East Coast" : {
             "center": [-23, 149]
          },
@@ -310,6 +307,9 @@
          },
          "Carpentaria Coast" : {
             "center": [-18, 140]
+         },
+         "Tanami-Timor Sea Coast" : {
+            "center": [-20, 133]
          }
       }
    }

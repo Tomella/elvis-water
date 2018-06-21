@@ -19,6 +19,7 @@
    left: 0;
    right: 0;
    height: 30px;
+   z-index:10
 }
 
 .map-tool-toggle-btn {

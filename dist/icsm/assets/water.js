@@ -126,47 +126,6 @@ under the License.
       }
    }]);
 }
-'use strict';
-
-{
-   var RootCtrl = function RootCtrl($http, configService) {
-      var self = this;
-      configService.getConfig().then(function (data) {
-         self.data = data;
-         // If its got WebGL its got everything we need.
-         try {
-            var canvas = document.createElement('canvas');
-            data.modern = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-         } catch (e) {
-            data.modern = false;
-         }
-      });
-   };
-
-   angular.module("WaterApp", ['common.altthemes', 'common.basin', 'common.catchment', 'common.header', 'common.navigation', 'common.panes', 'common.storage', 'common.templates', 'common.toolbar', 'explorer.config', 'explorer.confirm', 'explorer.drag', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.message', 'explorer.modal', 'explorer.tabs', 'explorer.version', 'explorer.map.templates', 'exp.search.map.service', 'exp.ui.templates', 'geo.draw', 'geo.elevation', 'geo.geosearch', 'geo.map', 'geo.maphelper', 'geo.measure', 'icsm.contributors', 'icsm.side-panel', 'water.clip', 'water.download', 'water.panes', "water.regions", 'water.templates', 'water.toolbar', 'water.vector', 'water.view', 'ui.bootstrap', 'ui.bootstrap-slider', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer'])
-
-   // Set up all the service providers here.
-   .config(['configServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, projectsServiceProvider, versionServiceProvider) {
-      configServiceProvider.location("icsm/resources/config/config.json");
-      configServiceProvider.dynamicLocation("icsm/resources/config/appConfig.json?t=");
-      versionServiceProvider.url("icsm/assets/package.json");
-      projectsServiceProvider.setProject("icsm");
-   }]).factory("userService", [function () {
-      return {
-         login: noop,
-         hasAcceptedTerms: noop,
-         setAcceptedTerms: noop,
-         getUsername: function getUsername() {
-            return "anon";
-         }
-      };
-      function noop() {
-         return true;
-      }
-   }]).controller("RootCtrl", RootCtrl);
-
-   RootCtrl.$invoke = ['$http', 'configService'];
-}
 "use strict";
 
 {
@@ -253,6 +212,47 @@ under the License.
    });
 
    ContributorsService.$inject = ["$http"];
+}
+'use strict';
+
+{
+   var RootCtrl = function RootCtrl($http, configService) {
+      var self = this;
+      configService.getConfig().then(function (data) {
+         self.data = data;
+         // If its got WebGL its got everything we need.
+         try {
+            var canvas = document.createElement('canvas');
+            data.modern = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+         } catch (e) {
+            data.modern = false;
+         }
+      });
+   };
+
+   angular.module("WaterApp", ['common.altthemes', 'common.basin', 'common.catchment', 'common.header', 'common.navigation', 'common.panes', 'common.storage', 'common.templates', 'common.toolbar', 'explorer.config', 'explorer.confirm', 'explorer.drag', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.message', 'explorer.modal', 'explorer.tabs', 'explorer.version', 'explorer.map.templates', 'exp.search.map.service', 'exp.ui.templates', 'geo.draw', 'geo.elevation', 'geo.geosearch', 'geo.map', 'geo.maphelper', 'geo.measure', 'icsm.contributors', 'icsm.side-panel', 'water.clip', 'water.download', 'water.panes', "water.regions", 'water.templates', 'water.toolbar', 'water.vector', 'water.view', 'ui.bootstrap', 'ui.bootstrap-slider', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer'])
+
+   // Set up all the service providers here.
+   .config(['configServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, projectsServiceProvider, versionServiceProvider) {
+      configServiceProvider.location("icsm/resources/config/config.json");
+      configServiceProvider.dynamicLocation("icsm/resources/config/appConfig.json?t=");
+      versionServiceProvider.url("icsm/assets/package.json");
+      projectsServiceProvider.setProject("icsm");
+   }]).factory("userService", [function () {
+      return {
+         login: noop,
+         hasAcceptedTerms: noop,
+         setAcceptedTerms: noop,
+         getUsername: function getUsername() {
+            return "anon";
+         }
+      };
+      function noop() {
+         return true;
+      }
+   }]).controller("RootCtrl", RootCtrl);
+
+   RootCtrl.$invoke = ['$http', 'configService'];
 }
 "use strict";
 
@@ -633,6 +633,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                         var division = L.geoJson(features, {
                            onEachFeature: function onEachFeature(feature, layer) {
+
+                              var createOutMarker = function createOutMarker() {
+                                 var label = L.marker(latLng, {
+                                    icon: L.divIcon({
+                                       html: "<div class='regions-icon' title='" + region.name + "'><div class='ellipsis'>" + region.name + "</div></div>"
+                                    })
+                                 });
+                                 return label;
+                              };
+
+                              var mouseEnter = function mouseEnter() {
+                                 layer.setStyle({
+                                    weight: 3,
+                                    color: 'red'
+                                 });
+
+                                 if (marker && marker._icon) {
+                                    console.log(marker._icon.firstChild);
+                                    marker._icon.firstChild.classList.add("over");
+                                 }
+                              };
+
+                              var mouseOut = function mouseOut() {
+                                 layer.setStyle({
+                                    weight: 1,
+                                    color: 'black'
+                                 });
+
+                                 if (marker && marker._icon) {
+                                    marker._icon.firstChild.classList.remove("over");
+                                 }
+                              };
+
                               var region = {
                                  layer: layer,
                                  name: feature.properties.RivRegName,
@@ -649,16 +682,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                               var bbox = feature.bbox;
                               var latLng = feature.properties.placement ? [feature.properties.placement[1], feature.properties.placement[0]] : [(bbox[1] + bbox[3]) / 2, (bbox[0] + bbox[2]) / 2];
 
-                              marker = L.circleMarker(latLng, { radius: 2 });
-                              layerGroup.addLayer(marker);
-                              marker = L.marker(latLng, { icon: L.divIcon({ html: "<div class='regions-icon' title='" + region.name + "'><div class='ellipsis'>" + region.name + "</div></div>" }) });
+                              var circle = L.circleMarker(latLng, { radius: 2 });
+                              layerGroup.addLayer(circle);
+
+                              var marker = createOutMarker();
+
                               layerGroup.addLayer(marker);
 
                               regions.push(region);
 
-                              layer.on("mouseover", function () {
-                                 console.log("river", layer);
-                              });
+                              layer.on("mouseover", mouseEnter);
+
+                              layer.on("mouseout", mouseOut);
                            },
                            style: function style(feature) {
                               return {
@@ -2129,13 +2164,13 @@ $templateCache.put("water/contributors/contributors.html","<span class=\"contrib
 $templateCache.put("water/contributors/show.html","<a ng-mouseenter=\"over()\" ng-mouseleave=\"out()\" class=\"contributors-link\" title=\"Click to lock/unlock contributors list.\"\r\n      ng-click=\"toggleStick()\" href=\"#contributors0\">Contributors</a>");
 $templateCache.put("water/panes/panes.html","<div class=\"mapContainer\" class=\"col-md-12\" style=\"padding-right:0\"  ng-attr-style=\"right:{{right.width}}\">\r\n   <span common-baselayer-control class=\"baselayer-slider\" max-zoom=\"16\" title=\"Satellite to Topography bias on base map.\"></span>\r\n   <div class=\"panesMapContainer\" geo-map configuration=\"data.map\">\r\n      <geo-extent></geo-extent>\r\n      <common-feature-info></common-feature-info>\r\n      <icsm-layerswitch></icsm-layerswitch>\r\n   </div>\r\n   <div class=\"base-layer-controller\">\r\n      <div geo-draw data=\"data.map.drawOptions\" line-event=\"elevation.plot.data\" rectangle-event=\"bounds.drawn\"></div>\r\n   </div>\r\n   <water-regions></water-regions>\r\n   <restrict-pan bounds=\"data.map.position.bounds\"></restrict-pan>\r\n</div>");
 $templateCache.put("water/panes/tabs.html","<!-- tabs go here -->\r\n<div id=\"panesTabsContainer\" class=\"paneRotateTabs\" style=\"opacity:0.9\" ng-style=\"{\'right\' : contentLeft +\'px\'}\">\r\n\r\n   <div class=\"paneTabItem\" style=\"width:60px; opacity:0\">\r\n\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'download\'}\" ng-click=\"setView(\'download\')\">\r\n      <button class=\"undecorated\">Datasets Download</button>\r\n   </div>\r\n   <!--\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'search\'}\" ng-click=\"setView(\'search\')\">\r\n		<button class=\"undecorated\">Search</button>\r\n	</div>\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'maps\'}\" ng-click=\"setView(\'maps\')\">\r\n		<button class=\"undecorated\">Layers</button>\r\n	</div>\r\n   -->\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'downloader\'}\" ng-click=\"setView(\'downloader\')\">\r\n      <button class=\"undecorated\">Products Download</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'glossary\'}\" ng-click=\"setView(\'glossary\')\">\r\n      <button class=\"undecorated\">Glossary</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'help\'}\" ng-click=\"setView(\'help\')\">\r\n      <button class=\"undecorated\">Help</button>\r\n   </div>\r\n</div>");
+$templateCache.put("water/side-panel/side-panel-left.html","<div class=\"cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left\" style=\"width: {{left.width}}px;\" ng-class=\"{\'cbp-spmenu-open\': left.active}\">\r\n    <a href=\"\" title=\"Close panel\" ng-click=\"closeLeft()\" style=\"z-index: 1200\">\r\n        <span class=\"glyphicon glyphicon-chevron-left pull-right\"></span>\r\n    </a>\r\n    <div ng-show=\"left.active === \'legend\'\" class=\"left-side-menu-container\">\r\n        <legend url=\"\'img/AustralianTopogaphyLegend.png\'\" title=\"\'Map Legend\'\"></legend>\r\n    </div>\r\n</div>");
+$templateCache.put("water/side-panel/side-panel-right.html","<div class=\"cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right noPrint\" ng-attr-style=\"width:{{right.width}}\" ng-class=\"{\'cbp-spmenu-open\': right.active}\">\r\n    <a href=\"\" title=\"Close panel\" ng-click=\"closePanel()\" style=\"z-index: 1\">\r\n        <span class=\"glyphicon glyphicon-chevron-right pull-left\"></span>\r\n    </a>\r\n\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'download\'\" water-view></div>\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'glossary\'\" icsm-glossary></div>\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'help\'\" icsm-help></div>\r\n    <panel-close-on-event only-on=\"search\" event-name=\"clear.button.fired\"></panel-close-on-event>\r\n</div>\r\n");
 $templateCache.put("water/select/division.html","<div class=\"row\" ng-repeat=\"division in divisions\">\r\n   <div class=\"col-md-12\" ng-mouseenter=\"hilight(division)\" ng-mouseleave=\"lolight(division)\">\r\n      <label>\r\n         <input type=\"radio\" ng-model=\"state.division\" name=\"divisionsRadio\" value=\"{{division.name}}\">\r\n         {{division.name}}\r\n      </label>\r\n   </div>\r\n</div>");
 $templateCache.put("water/select/doc.html","<div ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"select.lolight(doc)\" ng-mouseenter=\"select.hilight(doc)\">\r\n	<span ng-class=\"{ellipsis:!expanded}\" tooltip-enable=\"!expanded\" style=\"width:100%;display:inline-block;\"\r\n			tooltip-class=\"selectAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" tooltip-placement=\"bottom\">\r\n		<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\">\r\n			<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n		</button>\r\n		<download-add item=\"doc\" group=\"group\"></download-add>\r\n		<common-wms data=\"doc\"></common-wms>\r\n		<common-bbox data=\"doc\" ng-if=\"doc.showExtent\"></common-bbox>\r\n		<common-cc></common-cc>\r\n		<common-metaview url=\"\'https://ecat.ga.gov.au/geonetwork/srv/eng/search#!\' + doc.primaryId + \'/xml\'\" container=\"select\" item=\"doc\"></common-metaview>\r\n		<a href=\"https://ecat.ga.gov.au/geonetwork/srv/eng/search#!{{doc.primaryId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n	</span>\r\n	<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\">\r\n		{{doc.abstract}}\r\n	</span>\r\n	<div ng-show=\"expanded\" style=\"padding-bottom: 5px;\">\r\n		<h5>Keywords</h5>\r\n		<div>\r\n			<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("water/select/group.html","<div class=\"panel panel-default\" style=\"margin-bottom:-5px;\" >\r\n	<div class=\"panel-heading\"><common-wms data=\"group\"></common-wms> <strong>{{group.title}}</strong></div>\r\n	<div class=\"panel-body\">\r\n   		<div ng-repeat=\"doc in group.docs\">\r\n   			<div select-doc doc=\"doc\" group=\"group\"></div>\r\n		</div>\r\n	</div>\r\n</div>\r\n");
 $templateCache.put("water/select/region.html","<div class=\"row\" ng-repeat=\"region in regions\">\r\n   <div class=\"col-md-12\" ng-mouseenter=\"hilight(region)\" ng-mouseleave=\"lolight(region)\">\r\n      <label>\r\n         <input type=\"radio\" ng-model=\"state.region\" name=\"regionsRadio\" value=\"{{region.name}}\">\r\n         {{region.name}}\r\n      </label>\r\n   </div>\r\n</div>");
 $templateCache.put("water/select/select.html","<div ng-controller=\"SelectCtrl as select\">\r\n	<div style=\"position:relative;padding:5px;padding-left:10px;\" class=\"scrollPanel\" ng-if=\"!select.selected\">\r\n		<div class=\"panel panel-default\" style=\"margin-bottom:-5px\">\r\n  			<div class=\"panel-heading\">\r\n  				<h3 class=\"panel-title\">Available datasets</h3>\r\n  			</div>\r\n  			<div class=\"panel-body\">\r\n				<div ng-repeat=\"doc in select.data.response.docs\" style=\"padding-bottom:7px\">\r\n					<div select-doc ng-if=\"doc.type == \'dataset\'\" doc=\"doc\"></div>\r\n					<select-group ng-if=\"doc.type == \'group\'\" group=\"doc\"></select-group>\r\n				</div>\r\n				<div vector-select></div>\r\n  			</div>\r\n		</div>\r\n	</div>\r\n	<div style=\"position:relative;padding:5px;padding-left:10px;\" class=\"scrollPanel\" ng-if=\"select.selected\" common-item-metaview container=\"select\"></div>\r\n</div>");
-$templateCache.put("water/side-panel/side-panel-left.html","<div class=\"cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left\" style=\"width: {{left.width}}px;\" ng-class=\"{\'cbp-spmenu-open\': left.active}\">\r\n    <a href=\"\" title=\"Close panel\" ng-click=\"closeLeft()\" style=\"z-index: 1200\">\r\n        <span class=\"glyphicon glyphicon-chevron-left pull-right\"></span>\r\n    </a>\r\n    <div ng-show=\"left.active === \'legend\'\" class=\"left-side-menu-container\">\r\n        <legend url=\"\'img/AustralianTopogaphyLegend.png\'\" title=\"\'Map Legend\'\"></legend>\r\n    </div>\r\n</div>");
-$templateCache.put("water/side-panel/side-panel-right.html","<div class=\"cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right noPrint\" ng-attr-style=\"width:{{right.width}}\" ng-class=\"{\'cbp-spmenu-open\': right.active}\">\r\n    <a href=\"\" title=\"Close panel\" ng-click=\"closePanel()\" style=\"z-index: 1\">\r\n        <span class=\"glyphicon glyphicon-chevron-right pull-left\"></span>\r\n    </a>\r\n\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'download\'\" water-view></div>\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'glossary\'\" icsm-glossary></div>\r\n    <div class=\"right-side-menu-container\" ng-show=\"right.active === \'help\'\" icsm-help></div>\r\n    <panel-close-on-event only-on=\"search\" event-name=\"clear.button.fired\"></panel-close-on-event>\r\n</div>\r\n");
 $templateCache.put("water/toolbar/toolbar.html","<div class=\"elevation-toolbar noPrint\">\r\n   <div class=\"toolBarContainer\">\r\n      <div>\r\n         <ul class=\"left-toolbar-items\">\r\n            <div class=\"btn-group searchBar\" ng-show=\"root.whichSearch !== \'region\'\">\r\n               <div class=\"input-group input-group-custom\" geo-search >\r\n                  <input type=\"text\" ng-autocomplete ng-model=\"values.from.description\" options=\'{country:\"au\"}\' size=\"32\" title=\"Select a locality to pan the map to.\"\r\n                     class=\"form-control\" aria-label=\"...\">\r\n                  <div class=\"input-group-btn\">\r\n                     <button ng-click=\"zoom(false)\" exp-ga=\"[\'send\', \'event\', \'icsm\', \'click\', \'zoom to location\']\" class=\"btn btn-default\" title=\"Pan and potentially zoom to location.\">\r\n                        <i class=\"fa fa-search\"></i>\r\n                     </button>\r\n                     <button ng-click=\"root.whichSearch = \'region\'\" exp-ga=\"[\'send\', \'event\', \'icsm\', \'click\', \'zoom to location\']\" class=\"btn btn-default\" title=\"Switch to search by catchment area.\">\r\n                        <i class=\"fa fa-toggle-on\"></i>\r\n                     </button>\r\n                  </div>\r\n               </div>\r\n            </div>\r\n            <common-catchment-search ng-show=\"root.whichSearch === \'region\'\"></common-catchment-search>\r\n         </ul>\r\n         <ul class=\"right-toolbar-items\">\r\n            <li>\r\n               <panel-trigger panel-id=\"download\" panel-width=\"590px\" name=\"Download\" default=\"default\" icon-class=\"fa-list\" title=\"Select an area of interest and select datasets for download\"></panel-trigger>\r\n            </li>\r\n            <li>\r\n               <panel-trigger panel-id=\"help\" panel-width=\"590px\" name=\"Help\" icon-class=\"fa-question-circle-o\" title=\"Show help\"></panel-trigger>\r\n            </li>\r\n            <li>\r\n               <panel-trigger panel-id=\"glossary\" panel-width=\"590px\" name=\"Glossary\" icon-class=\"fa-book\" title=\"Show glossary\"></panel-trigger>\r\n            </li>\r\n            <li reset-page></li>\r\n         </ul>\r\n      </div>\r\n   </div>\r\n</div>");
 $templateCache.put("water/vector/add.html","<button type=\'button\' ng-disabled=\'!someSelected()\' class=\'undecorated vector-add\' ng-click=\'toggle()\'>\r\n   <span class=\'fa-stack\' tooltip-placement=\'right\' uib-tooltip=\'Extract data from one or more vector types.\'>\r\n	   <i class=\'fa fa-lg fa-download\' ng-class=\'{active:item.download}\'></i>\r\n	</span>\r\n</button>");
 $templateCache.put("water/vector/download.html","");

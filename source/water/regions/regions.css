@@ -8,6 +8,10 @@
    font-size: 120%;
 }
 
+.regions-icon:hover {
+   font-weight: bold;
+}
+
 .regions-icon {
    display: block;
    background-color: white;
@@ -19,6 +23,10 @@
    padding: 5px;
    max-width: 150px;
    opacity: 0.7;
+}
+
+.regions-icon.over {
+   font-weight: bold;
 }
 
 .leaflet-div-icon {

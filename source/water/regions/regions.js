@@ -158,6 +158,40 @@
 
                let division = L.geoJson(features, {
                   onEachFeature: (feature, layer) => {
+
+                     let createOutMarker = () => {
+                        let label = L.marker(latLng, {
+                           icon: L.divIcon({
+                              html: "<div class='regions-icon' title='" +  region.name + "'><div class='ellipsis'>" + region.name + "</div></div>"
+                           })
+                        });
+                        return label;
+                     }
+
+                     let mouseEnter = () => {
+                        layer.setStyle({
+                           weight:3,
+                           color: 'red'
+                        });
+
+                        if(marker && marker._icon) {
+                           console.log(marker._icon.firstChild)
+                           marker._icon.firstChild.classList.add("over");
+                        }
+                     };
+
+                     let mouseOut = () => {
+                        layer.setStyle({
+                           weight:1,
+                           color: 'black'
+                        });
+
+                        if(marker && marker._icon) {
+                           marker._icon.firstChild.classList.remove("over");
+                        }
+                     };
+
+
                      let region = {
                         layer: layer,
                         name: feature.properties.RivRegName,
@@ -174,17 +208,18 @@
                      let bbox = feature.bbox;
                      let latLng = feature.properties.placement? [feature.properties.placement[1],feature.properties.placement[0]]: [(bbox[1] + bbox[3]) / 2, (bbox[0] + bbox[2]) / 2];
 
-                     marker = L.circleMarker(latLng, {radius:2});
-                     layerGroup.addLayer(marker);
-                     marker = L.marker(latLng,
-                        {icon: L.divIcon({ html: "<div class='regions-icon' title='" +  region.name + "'><div class='ellipsis'>" + region.name + "</div></div>" }) });
+                     let circle = L.circleMarker(latLng, {radius:2});
+                     layerGroup.addLayer(circle);
+
+                     var marker = createOutMarker();
+
                      layerGroup.addLayer(marker);
 
                      regions.push(region);
 
-                     layer.on("mouseover", () => {
-                        console.log("river", layer);
-                     });
+                     layer.on("mouseover", mouseEnter);
+
+                     layer.on("mouseout", mouseOut);
                   },
                   style: function (feature) {
                      return {

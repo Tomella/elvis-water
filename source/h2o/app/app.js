@@ -13,7 +13,7 @@
       'common.templates',
       'common.toolbar',
 
-      'explorer.config',
+      //'explorer.config',
       'explorer.confirm',
       'explorer.drag',
       'explorer.enter',
@@ -37,6 +37,7 @@
       'geo.measure',
 
       'h2o.catchment',
+      'h2o.config',
       'h2o.contributors',
       'h2o.download',
       'h2o.list',

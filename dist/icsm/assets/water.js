@@ -20,47 +20,6 @@ under the License.
 'use strict';
 
 {
-   var RootCtrl = function RootCtrl($http, configService) {
-      var self = this;
-      configService.getConfig().then(function (data) {
-         self.data = data;
-         // If its got WebGL its got everything we need.
-         try {
-            var canvas = document.createElement('canvas');
-            data.modern = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-         } catch (e) {
-            data.modern = false;
-         }
-      });
-   };
-
-   angular.module("WaterApp", ['common.altthemes', 'common.basin', 'common.catchment', 'common.cc', 'common.download', 'common.header', 'common.navigation', 'common.panes', 'common.storage', 'common.templates', 'common.toolbar', 'explorer.config', 'explorer.confirm', 'explorer.drag', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.message', 'explorer.modal', 'explorer.tabs', 'explorer.version', 'explorer.map.templates', 'exp.search.map.service', 'exp.ui.templates', 'geo.draw', 'geo.elevation', 'geo.geosearch', 'geo.map', 'geo.maphelper', 'geo.measure', 'icsm.contributors', 'icsm.side-panel', 'water.clip', 'water.download', 'water.panes', "water.regions", 'water.select', 'water.templates', 'water.toolbar', 'water.vector', 'water.vector.download', 'water.view', 'ui.bootstrap', 'ui.bootstrap-slider', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer'])
-
-   // Set up all the service providers here.
-   .config(['configServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, projectsServiceProvider, versionServiceProvider) {
-      configServiceProvider.location("icsm/resources/config/config.json");
-      configServiceProvider.dynamicLocation("icsm/resources/config/appConfig.json?t=");
-      versionServiceProvider.url("icsm/assets/package.json");
-      projectsServiceProvider.setProject("icsm");
-   }]).factory("userService", [function () {
-      return {
-         login: noop,
-         hasAcceptedTerms: noop,
-         setAcceptedTerms: noop,
-         getUsername: function getUsername() {
-            return "anon";
-         }
-      };
-      function noop() {
-         return true;
-      }
-   }]).controller("RootCtrl", RootCtrl);
-
-   RootCtrl.$invoke = ['$http', 'configService'];
-}
-'use strict';
-
-{
    angular.module("water.clip", ['geo.draw']).directive('waterInfoBbox', function () {
       return {
          restrict: 'AE',
@@ -167,185 +126,46 @@ under the License.
       }
    }]);
 }
-"use strict";
+'use strict';
 
 {
-   var PaneCtrl = function PaneCtrl(paneService) {
-      var _this = this;
-
-      paneService.data().then(function (data) {
-         _this.data = data;
+   var RootCtrl = function RootCtrl($http, configService) {
+      var self = this;
+      configService.getConfig().then(function (data) {
+         self.data = data;
+         // If its got WebGL its got everything we need.
+         try {
+            var canvas = document.createElement('canvas');
+            data.modern = !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+         } catch (e) {
+            data.modern = false;
+         }
       });
    };
 
-   var PaneService = function PaneService() {
-      var data = {};
+   angular.module("WaterApp", ['common.altthemes', 'common.basin', 'common.catchment', 'common.cc', 'common.download', 'common.header', 'common.navigation', 'common.panes', 'common.storage', 'common.templates', 'common.toolbar', 'explorer.config', 'explorer.confirm', 'explorer.drag', 'explorer.enter', 'explorer.flasher', 'explorer.googleanalytics', 'explorer.httpdata', 'explorer.info', 'explorer.message', 'explorer.modal', 'explorer.tabs', 'explorer.version', 'explorer.map.templates', 'exp.search.map.service', 'exp.ui.templates', 'geo.draw', 'geo.elevation', 'geo.geosearch', 'geo.map', 'geo.maphelper', 'geo.measure', 'icsm.contributors', 'icsm.side-panel', 'water.clip', 'water.download', 'water.panes', "water.regions", 'water.select', 'water.templates', 'water.toolbar', 'water.vector', 'water.vector.download', 'water.view', 'ui.bootstrap', 'ui.bootstrap-slider', 'ngAutocomplete', 'ngRoute', 'ngSanitize', 'page.footer'])
 
+   // Set up all the service providers here.
+   .config(['configServiceProvider', 'projectsServiceProvider', 'versionServiceProvider', function (configServiceProvider, projectsServiceProvider, versionServiceProvider) {
+      configServiceProvider.location("icsm/resources/config/config.json");
+      configServiceProvider.dynamicLocation("icsm/resources/config/appConfig.json?t=");
+      versionServiceProvider.url("icsm/assets/package.json");
+      projectsServiceProvider.setProject("icsm");
+   }]).factory("userService", [function () {
       return {
-         add: function add(item) {},
-
-         remove: function remove(item) {}
-      };
-   };
-
-   angular.module("water.panes", []).directive("waterPanes", ['$rootScope', '$timeout', 'mapService', function ($rootScope, $timeout, mapService) {
-      return {
-         templateUrl: "water/panes/panes.html",
-         transclude: true,
-         restrict: "AE",
-         scope: {
-            defaultItem: "@",
-            data: "="
-         },
-         link: function link(scope) {
-            console.log("HHHHHHHHHHHHHH4H");
-         },
-         controller: ['$scope', function ($scope) {
-            var changeSize = false;
-
-            $rootScope.$on('side.panel.change', function (event) {
-               emitter();
-               $timeout(emitter, 100);
-               $timeout(emitter, 200);
-               $timeout(emitter, 300);
-               $timeout(emitter, 500);
-               function emitter() {
-                  var evt = document.createEvent("HTMLEvents");
-                  evt.initEvent("resize", false, true);
-                  window.dispatchEvent(evt);
-               }
-            });
-
-            $scope.view = $scope.defaultItem;
-
-            $rootScope.$broadcast("view.changed", $scope.view, null);
-
-            $scope.setView = function (what) {
-               var oldView = $scope.view;
-
-               if ($scope.view === what) {
-                  if (what) {
-                     changeSize = true;
-                  }
-                  $scope.view = "";
-               } else {
-                  if (!what) {
-                     changeSize = true;
-                  }
-                  $scope.view = what;
-               }
-
-               $rootScope.$broadcast("view.changed", $scope.view, oldView);
-
-               if (changeSize) {
-                  mapService.getMap().then(function (map) {
-                     map._onResize();
-                  });
-               }
-            };
-            $timeout(function () {
-               $rootScope.$broadcast("view.changed", $scope.view, null);
-            }, 50);
-         }]
-      };
-   }]).directive("icsmTabs", [function () {
-      return {
-         templateUrl: "water/panes/tabs.html",
-         require: "^icsmPanes"
-      };
-   }]).controller("PaneCtrl", PaneCtrl).factory("paneService", PaneService);
-
-   PaneCtrl.$inject = ["paneService"];
-
-
-   PaneService.$inject = [];
-}
-"use strict";
-
-{
-   var ContributorsService = function ContributorsService($http) {
-      var state = {
-         show: false,
-         ingroup: false,
-         stick: false
-      };
-
-      $http.get("icsm/resources/config/contributors.json").then(function (response) {
-         state.orgs = response.data;
-      });
-
-      return {
-         getState: function getState() {
-            return state;
+         login: noop,
+         hasAcceptedTerms: noop,
+         setAcceptedTerms: noop,
+         getUsername: function getUsername() {
+            return "anon";
          }
       };
-   };
+      function noop() {
+         return true;
+      }
+   }]).controller("RootCtrl", RootCtrl);
 
-   angular.module('icsm.contributors', []).directive("icsmContributors", ["$interval", "contributorsService", function ($interval, contributorsService) {
-      return {
-         templateUrl: "water/contributors/contributors.html",
-         scope: {},
-         link: function link(scope, element) {
-            var timer = void 0;
-
-            scope.contributors = contributorsService.getState();
-
-            scope.over = function () {
-               $interval.cancel(timer);
-               scope.contributors.ingroup = true;
-            };
-
-            scope.out = function () {
-               timer = $interval(function () {
-                  scope.contributors.ingroup = false;
-               }, 1000);
-            };
-
-            scope.unstick = function () {
-               scope.contributors.ingroup = scope.contributors.show = scope.contributors.stick = false;
-               element.find("a").blur();
-            };
-         }
-      };
-   }]).directive("icsmContributorsLink", ["$interval", "contributorsService", function ($interval, contributorsService) {
-      return {
-         restrict: "AE",
-         templateUrl: "water/contributors/show.html",
-         scope: {},
-         link: function link(scope) {
-            var timer = void 0;
-            scope.contributors = contributorsService.getState();
-            scope.over = function () {
-               $interval.cancel(timer);
-               scope.contributors.show = true;
-            };
-
-            scope.toggleStick = function () {
-               scope.contributors.stick = !scope.contributors.stick;
-               if (!scope.contributors.stick) {
-                  scope.contributors.show = scope.contributors.ingroup = false;
-               }
-            };
-
-            scope.out = function () {
-               timer = $interval(function () {
-                  scope.contributors.show = false;
-               }, 700);
-            };
-         }
-      };
-   }]).factory("contributorsService", ContributorsService).filter("activeContributors", function () {
-      return function (contributors) {
-         if (!contributors) {
-            return [];
-         }
-         return contributors.filter(function (contributor) {
-            return contributor.enabled;
-         });
-      };
-   });
-
-   ContributorsService.$inject = ["$http"];
+   RootCtrl.$invoke = ['$http', 'configService'];
 }
 "use strict";
 
@@ -449,6 +269,186 @@ under the License.
 
 
    DownloadService.$inject = ['$http', '$q', '$rootScope', 'mapService', 'storageService'];
+}
+"use strict";
+
+{
+   var ContributorsService = function ContributorsService($http) {
+      var state = {
+         show: false,
+         ingroup: false,
+         stick: false
+      };
+
+      $http.get("icsm/resources/config/contributors.json").then(function (response) {
+         state.orgs = response.data;
+      });
+
+      return {
+         getState: function getState() {
+            return state;
+         }
+      };
+   };
+
+   angular.module('icsm.contributors', []).directive("icsmContributors", ["$interval", "contributorsService", function ($interval, contributorsService) {
+      return {
+         templateUrl: "water/contributors/contributors.html",
+         scope: {},
+         link: function link(scope, element) {
+            var timer = void 0;
+
+            scope.contributors = contributorsService.getState();
+
+            scope.over = function () {
+               $interval.cancel(timer);
+               scope.contributors.ingroup = true;
+            };
+
+            scope.out = function () {
+               timer = $interval(function () {
+                  scope.contributors.ingroup = false;
+               }, 1000);
+            };
+
+            scope.unstick = function () {
+               scope.contributors.ingroup = scope.contributors.show = scope.contributors.stick = false;
+               element.find("a").blur();
+            };
+         }
+      };
+   }]).directive("icsmContributorsLink", ["$interval", "contributorsService", function ($interval, contributorsService) {
+      return {
+         restrict: "AE",
+         templateUrl: "water/contributors/show.html",
+         scope: {},
+         link: function link(scope) {
+            var timer = void 0;
+            scope.contributors = contributorsService.getState();
+            scope.over = function () {
+               $interval.cancel(timer);
+               scope.contributors.show = true;
+            };
+
+            scope.toggleStick = function () {
+               scope.contributors.stick = !scope.contributors.stick;
+               if (!scope.contributors.stick) {
+                  scope.contributors.show = scope.contributors.ingroup = false;
+               }
+            };
+
+            scope.out = function () {
+               timer = $interval(function () {
+                  scope.contributors.show = false;
+               }, 700);
+            };
+         }
+      };
+   }]).factory("contributorsService", ContributorsService).filter("activeContributors", function () {
+      return function (contributors) {
+         if (!contributors) {
+            return [];
+         }
+         return contributors.filter(function (contributor) {
+            return contributor.enabled;
+         });
+      };
+   });
+
+   ContributorsService.$inject = ["$http"];
+}
+"use strict";
+
+{
+   var PaneCtrl = function PaneCtrl(paneService) {
+      var _this = this;
+
+      paneService.data().then(function (data) {
+         _this.data = data;
+      });
+   };
+
+   var PaneService = function PaneService() {
+      var data = {};
+
+      return {
+         add: function add(item) {},
+
+         remove: function remove(item) {}
+      };
+   };
+
+   angular.module("water.panes", []).directive("waterPanes", ['$rootScope', '$timeout', 'mapService', function ($rootScope, $timeout, mapService) {
+      return {
+         templateUrl: "water/panes/panes.html",
+         transclude: true,
+         restrict: "AE",
+         scope: {
+            defaultItem: "@",
+            data: "="
+         },
+         link: function link(scope) {
+            console.log("HHHHHHHHHHHHHH4H");
+         },
+         controller: ['$scope', function ($scope) {
+            var changeSize = false;
+
+            $rootScope.$on('side.panel.change', function (event) {
+               emitter();
+               $timeout(emitter, 100);
+               $timeout(emitter, 200);
+               $timeout(emitter, 300);
+               $timeout(emitter, 500);
+               function emitter() {
+                  var evt = document.createEvent("HTMLEvents");
+                  evt.initEvent("resize", false, true);
+                  window.dispatchEvent(evt);
+               }
+            });
+
+            $scope.view = $scope.defaultItem;
+
+            $rootScope.$broadcast("view.changed", $scope.view, null);
+
+            $scope.setView = function (what) {
+               var oldView = $scope.view;
+
+               if ($scope.view === what) {
+                  if (what) {
+                     changeSize = true;
+                  }
+                  $scope.view = "";
+               } else {
+                  if (!what) {
+                     changeSize = true;
+                  }
+                  $scope.view = what;
+               }
+
+               $rootScope.$broadcast("view.changed", $scope.view, oldView);
+
+               if (changeSize) {
+                  mapService.getMap().then(function (map) {
+                     map._onResize();
+                  });
+               }
+            };
+            $timeout(function () {
+               $rootScope.$broadcast("view.changed", $scope.view, null);
+            }, 50);
+         }]
+      };
+   }]).directive("icsmTabs", [function () {
+      return {
+         templateUrl: "water/panes/tabs.html",
+         require: "^icsmPanes"
+      };
+   }]).controller("PaneCtrl", PaneCtrl).factory("paneService", PaneService);
+
+   PaneCtrl.$inject = ["paneService"];
+
+
+   PaneService.$inject = [];
 }
 "use strict";
 
@@ -2160,10 +2160,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 }
 angular.module("water.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("water/clip/clip.html","<div class=\"well well-sm\" style=\"margin-bottom:5px\">\r\n	<div class=\"container-fluid\">\r\n		<div class=\"row\">\r\n			<div class=\"col-md-12\" style=\"padding:0\">\r\n				<div class=\"\" role=\"group\" aria-label=\"...\">\r\n					<button ng-click=\"initiateDraw()\" ng-disable=\"client.drawing\"\r\n                      tooltip-append-to-body=\"true\" tooltip-placement=\"bottom\" uib-tooltip=\"Enable drawing of a bounding box. On enabling, click on the map and drag diagonally\"\r\n						class=\"btn btn-primary btn-default\">Select an area...</button>\r\n					<button ng-click=\"showInfo = !showInfo\" tooltip-placement=\"bottom\" uib-tooltip=\"Information.\" style=\"float:right\" class=\"btn btn-primary btn-default\"><i class=\"fa fa-info\"></i></button>\r\n				</div>\r\n				<exp-info title=\"Selecting an area\" show-close=\"true\" style=\"width:450px;position:fixed;top:200px;right:40px\" is-open=\"showInfo\">\r\n					<icsm-info-bbox></icsm-info-bbox>\r\n            </exp-info>\r\n            <div class=\"row\" ng-hide=\"(!clip.xMin && clip.xMin !== 0) || oversize\" style=\"padding-top:7px;\">\r\n               <div class=\"col-md-12 ng-binding\">\r\n                  Selected bounds: {{clip.xMin | number : 4}}° west,\r\n                     {{clip.yMax | number : 4}}° north,\r\n                     {{clip.xMax | number : 4}}° east,\r\n                     {{clip.yMin | number : 4}}° south\r\n               </div>\r\n            </div>\r\n			</div>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("water/clip/infobbox.html","<div class=\"\">\r\n	<strong style=\"font-size:120%\">Select an area of interest.</strong>\r\n   By hitting the \"Select an area...\" button an area on the map can be selected with the mouse by clicking a\r\n   corner and while holding the left mouse button\r\n	down drag diagonally across the map to the opposite corner.\r\n	<br/>\r\n	Clicking the \"Select an area...\" button again allows replacing a previous area selection. <br/>\r\n	<strong>Notes:</strong>\r\n   <ul>\r\n      <li>The data does not cover all of Australia.</li>\r\n      <li>Restrict a search area to below four square degrees. eg 2x2 or 1x4</li>\r\n   </ul>\r\n	<p style=\"padding-top:5px\"><strong>Hint:</strong> If the map has focus, you can use the arrow keys to pan the map.\r\n		You can zoom in and out using the mouse wheel or the \"+\" and \"-\" map control on the top left of the map. If you\r\n		don\'t like the position of your drawn area, hit the \"Draw\" button and draw a new bounding box.\r\n	</p>\r\n</div>");
-$templateCache.put("water/panes/panes.html","<div class=\"mapContainer\" class=\"col-md-12\" style=\"padding-right:0\"  ng-attr-style=\"right:{{right.width}}\">\r\n   <span common-baselayer-control class=\"baselayer-slider\" max-zoom=\"16\" title=\"Satellite to Topography bias on base map.\"></span>\r\n   <div class=\"panesMapContainer\" geo-map configuration=\"data.map\">\r\n      <geo-extent></geo-extent>\r\n      <common-feature-info></common-feature-info>\r\n      <icsm-layerswitch></icsm-layerswitch>\r\n   </div>\r\n   <div class=\"base-layer-controller\">\r\n      <div geo-draw data=\"data.map.drawOptions\" line-event=\"elevation.plot.data\" rectangle-event=\"bounds.drawn\"></div>\r\n   </div>\r\n   <water-regions></water-regions>\r\n   <restrict-pan bounds=\"data.map.position.bounds\"></restrict-pan>\r\n</div>");
-$templateCache.put("water/panes/tabs.html","<!-- tabs go here -->\r\n<div id=\"panesTabsContainer\" class=\"paneRotateTabs\" style=\"opacity:0.9\" ng-style=\"{\'right\' : contentLeft +\'px\'}\">\r\n\r\n   <div class=\"paneTabItem\" style=\"width:60px; opacity:0\">\r\n\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'download\'}\" ng-click=\"setView(\'download\')\">\r\n      <button class=\"undecorated\">Datasets Download</button>\r\n   </div>\r\n   <!--\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'search\'}\" ng-click=\"setView(\'search\')\">\r\n		<button class=\"undecorated\">Search</button>\r\n	</div>\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'maps\'}\" ng-click=\"setView(\'maps\')\">\r\n		<button class=\"undecorated\">Layers</button>\r\n	</div>\r\n   -->\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'downloader\'}\" ng-click=\"setView(\'downloader\')\">\r\n      <button class=\"undecorated\">Products Download</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'glossary\'}\" ng-click=\"setView(\'glossary\')\">\r\n      <button class=\"undecorated\">Glossary</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'help\'}\" ng-click=\"setView(\'help\')\">\r\n      <button class=\"undecorated\">Help</button>\r\n   </div>\r\n</div>");
 $templateCache.put("water/contributors/contributors.html","<span class=\"contributors\" ng-mouseenter=\"over()\" ng-mouseleave=\"out()\"\r\n      ng-class=\"(contributors.show || contributors.ingroup || contributors.stick) ? \'transitioned-down\' : \'transitioned-up\'\">\r\n   <button class=\"undecorated contributors-unstick\" ng-click=\"unstick()\" style=\"float:right\">X</button>\r\n   <div ng-repeat=\"contributor in contributors.orgs | activeContributors\" style=\"text-align:cnter\">\r\n      <a ng-href=\"{{contributor.href}}\" name=\"contributors{{$index}}\" title=\"{{contributor.title}}\" target=\"_blank\">\r\n         <img ng-src=\"{{contributor.image}}\" alt=\"{{contributor.title}}\" class=\"elvis-logo\" ng-class=\"contributor.class\"></img>\r\n      </a>\r\n   </div>\r\n</span>");
 $templateCache.put("water/contributors/show.html","<a ng-mouseenter=\"over()\" ng-mouseleave=\"out()\" class=\"contributors-link\" title=\"Click to lock/unlock contributors list.\"\r\n      ng-click=\"toggleStick()\" href=\"#contributors0\">Contributors</a>");
+$templateCache.put("water/panes/panes.html","<div class=\"mapContainer\" class=\"col-md-12\" style=\"padding-right:0\"  ng-attr-style=\"right:{{right.width}}\">\r\n   <span common-baselayer-control class=\"baselayer-slider\" max-zoom=\"16\" title=\"Satellite to Topography bias on base map.\"></span>\r\n   <div class=\"panesMapContainer\" geo-map configuration=\"data.map\">\r\n      <geo-extent></geo-extent>\r\n      <common-feature-info></common-feature-info>\r\n      <icsm-layerswitch></icsm-layerswitch>\r\n   </div>\r\n   <div class=\"base-layer-controller\">\r\n      <div geo-draw data=\"data.map.drawOptions\" line-event=\"elevation.plot.data\" rectangle-event=\"bounds.drawn\"></div>\r\n   </div>\r\n   <water-regions></water-regions>\r\n   <restrict-pan bounds=\"data.map.position.bounds\"></restrict-pan>\r\n</div>");
+$templateCache.put("water/panes/tabs.html","<!-- tabs go here -->\r\n<div id=\"panesTabsContainer\" class=\"paneRotateTabs\" style=\"opacity:0.9\" ng-style=\"{\'right\' : contentLeft +\'px\'}\">\r\n\r\n   <div class=\"paneTabItem\" style=\"width:60px; opacity:0\">\r\n\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'download\'}\" ng-click=\"setView(\'download\')\">\r\n      <button class=\"undecorated\">Datasets Download</button>\r\n   </div>\r\n   <!--\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'search\'}\" ng-click=\"setView(\'search\')\">\r\n		<button class=\"undecorated\">Search</button>\r\n	</div>\r\n	<div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'maps\'}\" ng-click=\"setView(\'maps\')\">\r\n		<button class=\"undecorated\">Layers</button>\r\n	</div>\r\n   -->\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'downloader\'}\" ng-click=\"setView(\'downloader\')\">\r\n      <button class=\"undecorated\">Products Download</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'glossary\'}\" ng-click=\"setView(\'glossary\')\">\r\n      <button class=\"undecorated\">Glossary</button>\r\n   </div>\r\n   <div class=\"paneTabItem\" ng-class=\"{\'bold\': view == \'help\'}\" ng-click=\"setView(\'help\')\">\r\n      <button class=\"undecorated\">Help</button>\r\n   </div>\r\n</div>");
 $templateCache.put("water/select/division.html","<div class=\"row\" ng-repeat=\"division in divisions\">\r\n   <div class=\"col-md-12\" ng-mouseenter=\"hilight(division)\" ng-mouseleave=\"lolight(division)\">\r\n      <label>\r\n         <input type=\"radio\" ng-model=\"state.division\" name=\"divisionsRadio\" value=\"{{division.name}}\">\r\n         {{division.name}}\r\n      </label>\r\n   </div>\r\n</div>");
 $templateCache.put("water/select/doc.html","<div ng-class-odd=\"\'odd\'\" ng-class-even=\"\'even\'\" ng-mouseleave=\"select.lolight(doc)\" ng-mouseenter=\"select.hilight(doc)\">\r\n	<span ng-class=\"{ellipsis:!expanded}\" tooltip-enable=\"!expanded\" style=\"width:100%;display:inline-block;\"\r\n			tooltip-class=\"selectAbstractTooltip\" tooltip=\"{{doc.abstract | truncate : 250}}\" tooltip-placement=\"bottom\">\r\n		<button type=\"button\" class=\"undecorated\" ng-click=\"expanded = !expanded\" title=\"Click to see more about this dataset\">\r\n			<i class=\"fa pad-right fa-lg\" ng-class=\"{\'fa-caret-down\':expanded,\'fa-caret-right\':(!expanded)}\"></i>\r\n		</button>\r\n		<download-add item=\"doc\" group=\"group\"></download-add>\r\n		<common-wms data=\"doc\"></common-wms>\r\n		<common-bbox data=\"doc\" ng-if=\"doc.showExtent\"></common-bbox>\r\n		<common-cc></common-cc>\r\n		<common-metaview url=\"\'https://ecat.ga.gov.au/geonetwork/srv/eng/search#!\' + doc.primaryId + \'/xml\'\" container=\"select\" item=\"doc\"></common-metaview>\r\n		<a href=\"https://ecat.ga.gov.au/geonetwork/srv/eng/search#!{{doc.primaryId}}\" target=\"_blank\" ><strong>{{doc.title}}</strong></a>\r\n	</span>\r\n	<span ng-class=\"{ellipsis:!expanded}\" style=\"width:100%;display:inline-block;padding-right:15px;\">\r\n		{{doc.abstract}}\r\n	</span>\r\n	<div ng-show=\"expanded\" style=\"padding-bottom: 5px;\">\r\n		<h5>Keywords</h5>\r\n		<div>\r\n			<span class=\"badge\" ng-repeat=\"keyword in doc.keywords track by $index\">{{keyword}}</span>\r\n		</div>\r\n	</div>\r\n</div>");
 $templateCache.put("water/select/group.html","<div class=\"panel panel-default\" style=\"margin-bottom:-5px;\" >\r\n	<div class=\"panel-heading\"><common-wms data=\"group\"></common-wms> <strong>{{group.title}}</strong></div>\r\n	<div class=\"panel-body\">\r\n   		<div ng-repeat=\"doc in group.docs\">\r\n   			<div select-doc doc=\"doc\" group=\"group\"></div>\r\n		</div>\r\n	</div>\r\n</div>\r\n");

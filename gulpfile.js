@@ -43,7 +43,7 @@ gulp.task('views', function () {
 });
 
 //Concatenate & Minify JS
-gulp.task('scripts', ["commonScripts", 'waterScripts']);
+gulp.task('scripts', ["commonScripts", 'waterScripts', 'h2oScripts']);
 
 //Concatenate & Minify JS
 gulp.task('commonScripts', function() {
@@ -53,6 +53,11 @@ gulp.task('commonScripts', function() {
 //Concatenate & Minify JS
 gulp.task('waterScripts', function() {
    return prepareScripts('water');
+});
+
+//Concatenate & Minify JS
+gulp.task('h2oScripts', function() {
+   return prepareScripts('h2o');
 });
 
 function prepareScripts(name) {
@@ -90,6 +95,11 @@ gulp.task('squashWater', function() {
 	return squashJs('water');
 });
 
+
+gulp.task('squashH2o', function() {
+	return squashJs('h2o');
+});
+
 function squashJs(name) {
 	return gulp.src(directories.assets + '/' + name + '.js')
 		.pipe(uglify())
@@ -103,9 +113,11 @@ gulp.task('watch', function() {
     gulp.watch(directories.source + '/**/*(*.js|*.html)', ['lint']);
     gulp.watch(directories.source + '/common/**/*(*.js|*.html)', ['commonScripts']);
     gulp.watch(directories.source + '/water/**/*(*.js|*.html)', ['waterScripts']);
+    gulp.watch(directories.source + '/h2o/**/*(*.js|*.html)', ['h2oScripts']);
     gulp.watch(directories.source + '/**/*.css', ['concatCss']);
     gulp.watch(directories.assets + '/common.js', ['squashCommon']);
     gulp.watch(directories.assets + '/water.js', ['squashWater']);
+    gulp.watch(directories.assets + '/h2o.js', ['squashH2o']);
     gulp.watch(directories.views +  '/*', ['views']);
     gulp.watch(directories.resources + '/**/*', ['resources']);
 });

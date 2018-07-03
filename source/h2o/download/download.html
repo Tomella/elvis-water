@@ -1,0 +1,73 @@
+<div class="container-fluid">
+      <div class="row">
+         <div class="col-md-4">
+            <label for="geoprocessOutCoordSys">
+               Coordinate System
+            </label>
+         </div>
+         <div class="col-md-8">
+            <select style="width:95%" ng-model="processing.outCoordSys" id="geoprocessOutCoordSys"
+               ng-options="opt.value for opt in outCoordSys"></select>
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-md-4">
+            <label for="geoprocessOutputFormat">
+               Output Format
+            </label>
+         </div>
+         <div class="col-md-8">
+            <select style="width:95%" ng-model="processing.outFormat" id="geoprocessOutputFormat" ng-options="opt.value for opt in processing.config.outFormat"></select>
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-md-4">
+            <label for="geoprocessOutputFormat">
+               File name
+            </label>
+         </div>
+         <div class="col-md-8">
+            <input type="text" ng-model="processing.filename" class="download-control" placeholder="Optional filename" title="Alphanumeric, hyphen or dash characters, maximium of 16 characters">
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-4">
+            <label for="geoprocessOutputFormat">
+               Email
+            </label>
+         </div>
+         <div class="col-md-8">
+            <input required="required" type="email" ng-model="processing.email" class="download-control" placeholder="Email address to send download link">
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-md-5" style="padding-top:7px">
+            <div class="progress">
+               <div class="progress-bar" role="progressbar" aria-valuenow="{{processing.percentComplete}}" aria-valuemin="0" aria-valuemax="100"
+                  style="width: {{processing.percentComplete}}%;">
+                  <span class="sr-only"></span>
+               </div>
+            </div>
+         </div>
+         <div class="col-md-5" style="padding-top:7px">
+            <span style="padding-right:10px" uib-tooltip="Select a valid coordinate system for area." tooltip-placement="bottom">
+               <i class="fa fa-file-video-o fa-2x" ng-class="{'product-valid': processing.validProjection, 'product-invalid': !processing.validProjection}"></i>
+            </span>
+            <span style="padding-right:10px" uib-tooltip="Select a valid download format." tooltip-placement="bottom">
+               <i class="fa fa-files-o fa-2x" ng-class="{'product-valid': processing.validFormat, 'product-invalid': !processing.validFormat}"></i>
+            </span>
+            <span style="padding-right:10px" uib-tooltip="Optional custom filename (alphanumeric, max length 8 characters)" tooltip-placement="bottom">
+               <i class="fa fa-save fa-2x" ng-class="{'product-valid': processing.validFilename, 'product-invalid': !processing.validFilename}"></i>
+            </span>
+            <span style="padding-right:10px" uib-tooltip="Provide an email address." tooltip-placement="bottom">
+               <i class="fa fa-envelope fa-2x" ng-class="{'product-valid': processing.validEmail, 'product-invalid': !processing.validEmail}"></i>
+            </span>
+         </div>
+         <div class="col-md-2">
+            <button class="btn btn-primary pull-right" ng-disabled="!processing.valid" ng-click="submit()">Submit</button>
+         </div>
+      </div>
+   </div>

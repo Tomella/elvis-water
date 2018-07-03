@@ -1,0 +1,22 @@
+<div class="btn-group searchBar">
+   <div class="input-group input-group-custom">
+		<input type="text" size="32" class="form-control"
+            ng-keyup="keyup($event)" ng-focus="changing()" ng-model="nameFilter" placeholder="Find a catchment of interest">
+      <div class="input-group-btn">
+         <button ng-click="search()" class="btn btn-default" title="Switch to search by google search">
+            <i class="fa fa-search" aria-hidden="true" ></i>
+         </button>
+         <button ng-click="root.whichSearch = 'google'" class="btn btn-default" title="Switch to search by google search">
+            <i class="fa fa-toggle-on"></i>
+         </button>
+      </div>
+      <div style="width:24em; top:31px; position:absolute;left:15px;color:black">
+         <div class="row" ng-repeat="region in catchmentData.catchments | catchmentFilterList : nameFilter : map: 20 | orderBy : 'name'"
+                style="background-color:white;">
+            <div class="col-md-12 rw-sub-list-trigger">
+               <button class="undecorated zoomButton" ng-click="zoomToLocation(region);">{{region.name}}</button>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

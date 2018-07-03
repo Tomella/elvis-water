@@ -2,7 +2,7 @@
 <html lang="en-us" id="ng-app" ng-app="WaterApp">
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<title>Surface Water - Foundation Spatial Data</title>
+	<title>Water - Foundation Spatial Data</title>
     <meta charset="utf-8">
 	<link rel="icon" type="image/png" href="icsm/resources/img/SiteFavIcon.png" />
 
@@ -54,7 +54,7 @@ ga('send', 'pageview');
 <p>
 <img src="icsm/resources/css/images/geoscience_inline_padded_small.png" style="float:left;padding-right:10px;" />
 <br/>
-<strong>Surface Water - browser requirements.</strong><br/>
+<strong>Water - browser requirements.</strong><br/>
 Unfortunately this application requires a browser made more recently than what you are using. We will not be providing a lower spec
 version of this application. The latest Firefox, Chrome plus Microsoft Internet Explorer 9 and higher including Edge browsers have been tested to work as of mid-2015.
 </div>
@@ -63,11 +63,11 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 <!-- BEGIN: Sticky Header -->
 <div icsm-header class="navbar navbar-default navbar-fixed-top"
          current="'satellite'"
-			heading="'Surface Water - Foundation Spatial Data'"
-			headingtitle="'Surface Water - Foundation Spatial Data'"
-			breadcrumbs="[{name:'Surface Water', title: 'Reload Surface Water - Foundation Spatial Data', url: '.'}]"
-			helptitle="'Get help about Surface Water - Foundation Spatial Data'"
-			helpalttext="'Get help about Surface Water - Foundation Spatial Data'">
+			heading="'Water - Foundation Spatial Data'"
+			headingtitle="'Water - Foundation Spatial Data'"
+			breadcrumbs="[{name:'Water', title: 'Reload Water - Foundation Spatial Data', url: '.'}]"
+			helptitle="'Get help about Water - Foundation Spatial Data'"
+			helpalttext="'Get help about Water - Foundation Spatial Data'">
 </div>
 <!-- END: Sticky Header -->
 
@@ -83,10 +83,12 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 <side-panel-left style="z-index: 2"></side-panel-left>
 
 <side-panel-right-oppose>
-   <water-panes data="root.data" default-item="download"></water-panes>
+   <h2o-panes data="root.data" default-item="download"></h2o-panes>
 </side-panel-right-oppose>
 
-<side-panel-right style="z-index: 2"></side-panel-right>
+<side-panel-right style="z-index: 3">
+   <h2o-select></h2o-select>
+</side-panel-right>
 
 
 <div icsm-contributors></div>
@@ -105,9 +107,6 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 <!-- END: Sticky Footer -->
 
 
-<div class="wizardPopup" wizard-popup ng-class="{'wizardPopup':data.item, wizardHide: !data.item}" ng-controller="DownloadCtrl as dl"></div>
-<iframe id="launcher" style="height:0;display:none"></iframe>
-
 	<script src="https://maps.googleapis.com/maps/api/js?client=gme-geoscienceaustralia&v=3&language=en&libraries=places"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <!--[if IE 9 ]>    <script src="assets/placeholder/placeholders.jquery.min.js"></script> <![endif]-->
@@ -115,12 +114,12 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 	<script src="//cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
 	<script src="//cdn.jsdelivr.net/leaflet.esri/1.0.0/esri-leaflet.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular-animate.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular-route.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular-sanitize.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular-aria.min.js"></script>
-  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.11/angular-messages.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-aria.min.js"></script>
+  	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-messages.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.3.3/ui-bootstrap-tpls.min.js"></script>
 
@@ -140,6 +139,6 @@ version of this application. The latest Firefox, Chrome plus Microsoft Internet 
 
 	<!-- These are the "ICSM" specific includes of modules -->
 	<script src="icsm/assets/common.js?v=VERSION_NO"></script>
-	<script src="icsm/assets/water.js?v=VERSION_NO"></script>
+   <script src="icsm/assets/h2o.js?v=VERSION_NO"></script>
 </body>
 </html>

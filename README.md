@@ -1,2 +1,2 @@
 # elvis-water
-Surface water discovery and delivery
+Water discovery and delivery

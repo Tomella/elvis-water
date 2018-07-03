@@ -1,7 +1,4 @@
 {
-   "wizardState": {
-     "popup": "hide"
-   },
    "map":{
    	  "name" : "main",
       "options":{
@@ -152,6 +149,198 @@
       "recaptchaKey": "6LfUrFsUAAAAAKu4EJY_FSi3zFXvWm60RDVknRHf"
    },
    "downloadLimit": 50000000000,
+   "download": {
+      "serviceUrl": "https://elvis-ga.fmecloud.com/fmejobsubmitter/fsdf_placenames/Placenames_ClipZipShip_Master.fmw?opt_responseformat=json&opt_showresult=false&opt_servicemode=sync",
+      "outFormat": [
+         {
+            "value": "Bentley MicroStation Design V8",
+            "code": "DGNV8"
+         },
+         {
+            "value": "MapInfo TAB",
+            "code": "MITAB"
+         },
+         {
+            "value": "Google KML",
+            "code": "OGCKML",
+            "restrictCoordSys": "LL-WGS84",
+            "restrictMessage": "We can only deliver Google KML in WGS84 Lat/Longs (EPSG:4326)"
+         },
+         {
+            "value": "CSV (pipe delimited )",
+            "code": "CSV"
+         },
+
+         {
+            "code": "ESRISHAPE",
+            "value": "Shapefile"
+         },
+         {
+            "code": "GEOJSON",
+            "value": "GeoJSON"
+         }
+      ],
+      "outCoordSys": [
+         {
+            "code": "AUS-LM-CONIC",
+            "value": "Lambert Conformal Conic for Australia, WGS84"
+         },
+         {
+            "code": "EPSG:28347",
+            "value": "Map Grid of Australia Zone 47 (GDA 94)",
+            "extent": {
+               "xMax": 102,
+               "xMin": 96,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28348",
+            "value": "Map Grid of Australia Zone 48 (GDA 94)",
+            "extent": {
+               "xMax": 108,
+               "xMin": 102,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28349",
+            "value": "Map Grid of Australia Zone 49 (GDA 94)",
+            "extent": {
+               "xMax": 114,
+               "xMin": 108,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28350",
+            "value": "Map Grid of Australia Zone 50 (GDA 94)",
+            "extent": {
+               "xMax": 120,
+               "xMin": 114,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28351",
+            "value": "Map Grid of Australia Zone 51 (GDA 94)",
+            "extent": {
+               "xMax": 126,
+               "xMin": 120,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28352",
+            "value": "Map Grid of Australia Zone 52 (GDA 94)",
+            "extent": {
+               "xMax": 132,
+               "xMin": 126,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28353",
+            "value": "Map Grid of Australia Zone 53 (GDA 94)",
+            "extent": {
+               "xMax": 138,
+               "xMin": 132,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28354",
+            "value": "Map Grid of Australia Zone 54 (GDA 94)",
+            "extent": {
+               "xMax": 144,
+               "xMin": 138,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28355",
+            "value": "Map Grid of Australia Zone 55 (GDA 94)",
+            "extent": {
+               "xMax": 150,
+               "xMin": 144,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28356",
+            "value": "Map Grid of Australia Zone 56 (GDA 94)",
+            "extent": {
+               "xMax": 156,
+               "xMin": 150,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28357",
+            "value": "Map Grid of Australia Zone 57 (GDA 94)",
+            "extent": {
+               "xMax": 162,
+               "xMin": 156,
+               "yMax": -14.06,
+               "yMin": -60.56
+            }
+         },
+         {
+            "code": "EPSG:28358",
+            "value": "Map Grid of Australia Zone 58 (GDA 94)",
+            "extent": {
+               "xMax": 168,
+               "xMin": 162,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "EPSG:28359",
+            "value": "Map Grid of Australia Zone 59 (GDA 94)",
+            "extent": {
+               "xMax": 174,
+               "xMin": 168,
+               "yMax": -8,
+               "yMin": -56
+            }
+         },
+         {
+            "code": "GDA94.Geoscience/Lmbrt",
+            "value": "GDA94 / Geoscience Australia Lambert (EPSG:3112)",
+            "extent": {
+               "xMax": 155,
+               "xMin": 108,
+               "yMax": -10,
+               "yMin": -45
+            }
+         },
+         {
+            "code": "LL-GDA94",
+            "value": "Geodetic Datum of Australia 1994 (EPSG:4283)",
+            "extent": {
+               "xMax": 155,
+               "xMin": 108,
+               "yMax": -10,
+               "yMin": -45
+            }
+         },
+         {
+            "code": "LL-WGS84",
+            "value": "WGS84 Lat/Longs (EPSG:4326)"
+         }
+      ]
+   },
    "regions": {
       "regionsUrl": "icsm/resources/data/riverRegions.json",
       "divisionColors": [

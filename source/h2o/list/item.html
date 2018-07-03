@@ -1,0 +1,56 @@
+<div ng-mouseenter="vm.enter()" ng-mouseleave="vm.leave()">
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-12 list-header" >
+               <button type="button" class="undecorated" ng-click="vm.showPan(vm.item)"
+                      tooltip-append-to-body="true" title="Zoom to river region." tooltip-placement="left" uib-tooltip="Zoom to river region">
+                  <i class="fa fa-lg fa-flag-o"></i>
+               </button>
+               <span>{{vm.item.name}}</span>
+               <span class="pull-right">River region ID: {{vm.item.id}}</span>
+            </div>
+         </div>
+      </div>
+      <div class="container-fluid">
+         <div class="row">
+            <div class="col-md-4">Division</div>
+            <div class="col-md-8">
+               <span class="pn-numeric" title=" Drainage Division Name">
+                     {{doc.geojson.properties.Division}}
+               </span>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-4">Area</div>
+            <div class="col-md-8">
+               <span class="pn-numeric" title="Catchment area size">
+                     {{doc.geojson.properties.AlbersArea | albersArea}}
+               </span>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-4">Source</div>
+            <div class="col-md-8">
+               <span class="pn-numeric" title="Name of agency that originally captured the spatial object.">
+                     {{doc.geojson.properties.FSource}}
+               </span>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-4">Attribute Source</div>
+            <div class="col-md-8">
+               <span class="pn-numeric" title="Name of agency that originally captured the attribute object.">
+                     {{doc.geojson.properties.AttrSource}}
+               </span>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-4">Bounded (S/W/N/E)</div>
+            <div class="col-md-8">
+               <span class="pn-numeric" title="South / West / North / East"s>
+                     {{vm.item.bbox.yMin | toFixed}}&deg; / {{vm.item.bbox.xMin | toFixed}}&deg; / {{vm.item.bbox.yMax | toFixed}}&deg; / {{vm.item.bbox.xMax | toFixed}}&deg;
+               </span>
+            </div>
+         </div>
+
+      </div>

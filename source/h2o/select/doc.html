@@ -1,0 +1,23 @@
+<div ng-class-odd="'odd'" ng-class-even="'even'" ng-mouseleave="select.lolight(doc)" ng-mouseenter="select.hilight(doc)">
+	<span ng-class="{ellipsis:!expanded}" tooltip-enable="!expanded" style="width:100%;display:inline-block;"
+			tooltip-class="selectAbstractTooltip" tooltip="{{doc.abstract | truncate : 250}}" tooltip-placement="bottom">
+		<button type="button" class="undecorated" ng-click="expanded = !expanded" title="Click to see more about this dataset">
+			<i class="fa pad-right fa-lg" ng-class="{'fa-caret-down':expanded,'fa-caret-right':(!expanded)}"></i>
+		</button>
+		<download-add item="doc" group="group"></download-add>
+		<common-wms data="doc"></common-wms>
+		<common-bbox data="doc" ng-if="doc.showExtent"></common-bbox>
+		<common-cc></common-cc>
+		<common-metaview url="'https://ecat.ga.gov.au/geonetwork/srv/eng/search#!' + doc.primaryId + '/xml'" container="select" item="doc"></common-metaview>
+		<a href="https://ecat.ga.gov.au/geonetwork/srv/eng/search#!{{doc.primaryId}}" target="_blank" ><strong>{{doc.title}}</strong></a>
+	</span>
+	<span ng-class="{ellipsis:!expanded}" style="width:100%;display:inline-block;padding-right:15px;">
+		{{doc.abstract}}
+	</span>
+	<div ng-show="expanded" style="padding-bottom: 5px;">
+		<h5>Keywords</h5>
+		<div>
+			<span class="badge" ng-repeat="keyword in doc.keywords track by $index">{{keyword}}</span>
+		</div>
+	</div>
+</div>

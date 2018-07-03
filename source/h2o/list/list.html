@@ -1,0 +1,52 @@
+<div class="pn-results-heading" style="min-height:25px" ng-if="results">
+   <span ng-if="results.regions.length == 1">
+      Showing matched river regions
+   </span>
+   <span ng-if="results.regions.length > 1">
+      Matched {{results.regions.length}} river regions
+   </span>
+   <span class="pull-right">
+      <button class="btn btn-primary" style="padding:0 10px" ng-click="state.showDownload = !state.showDownload">
+         <span ng-if="!state.showDownload">Download...</span>
+         <span ng-if="state.showDownload">Hide download details</span>
+      </button>
+      <button class="btn btn-primary" style="padding:0 10px" ng-if="results.regions.length && !state.showDownload" ng-click="clear()">
+         Clear results
+      </button>
+   </span>
+</div>
+<div class="panel panel-default pn-container" ng-if="results" common-scroller buffer="200" more="more()">
+   <div class="panel-heading">
+      <div style="padding-top:5px; padding-bottom:5px">
+         <span ng-if="results.search">Matching river region names like "{{results.search}}"</span>
+      </div>
+      <div style="padding-top:5px; padding-bottom:5px" ng-if="state.showDownload">
+         <h2o-download data="state"></h2o-download>
+      </div>
+   </div>
+
+   <div class="panel-default panel-body">
+      <div class="pn-results-list" ng-repeat="doc in results.regions">
+         <h2o-item item="doc"></h2o-item>
+      </div>
+   </div>
+</div>
+<div class="panel panel-default pn-container" ng-if="!results">
+   <div class="panel-heading" style="min-height:25px">
+      <span style="font-weight:bold">
+         Need help on how to search?
+      </span>
+   </div>
+   <div class="panel-body">
+      Searching is conducted on the current map view. Pan and zoom the map to your area of interest
+      <br/>
+      <br/>
+      Use the search input to restrict your search.
+      <br/><strong>Hint:</strong>
+      <ul>
+         <li>You can load all river regions in an area by leaving the search input blank,
+            panning and zooming to your area of interest and hitting the search button.</li>
+         <li>You can restrict to a single river region by clicking it on the list of hints for the search input.</li>
+      </ul>
+   </div>
+</div>
